@@ -22,6 +22,8 @@ import {
   uploadBytesResumable,
 } from '@angular/fire/storage';
 import Swal from 'sweetalert2';
+import { FirestoreService } from '../../../services/firestore.service';
+import { AuthService } from '../../../services/auth.service';
 
 @Component({
   selector: 'app-registro',
@@ -81,7 +83,11 @@ export class RegistroComponent implements OnInit {
     imagenes: this.formBuilder.array([]),
   });
 
-  constructor(private formBuilder: FormBuilder) {}
+  constructor(
+    private formBuilder: FormBuilder,
+    private firestoreService: FirestoreService,
+    private authService: AuthService
+  ) {}
 
   ngOnInit(): void {
     //Called after the constructor, initializing input properties, and the first call to ngOnChanges.
@@ -90,62 +96,77 @@ export class RegistroComponent implements OnInit {
 
   async submitForm() {
     const formArray = this.formRegistro.get('imagenes') as FormArray;
+    let url: string | string[] = [];
 
-    formArray.controls.forEach((control) => {
-      if (control.value === '') {
-        return;
-      } else {
+    for (const control of formArray.controls) {
+      if (control.value !== '') {
         const fileRef = ref(this.storage, `imagenes/${control.value.name}`);
-        uploadBytesResumable(fileRef, control.value).then(async (snapshot) => {
-          const url = await getDownloadURL(snapshot.ref);
-          if (this.tipoUsuario === 'Paciente') {
-            await addDoc(collection(this.firestore, 'pacientes'), {
-              nombre: this.formRegistro.get('nombre')?.value,
-              apellido: this.formRegistro.get('apellido')?.value,
-              edad: this.formRegistro.get('edad')?.value,
-              dni: this.formRegistro.get('dni')?.value,
-              obrasocial: this.formRegistro.get('obrasocial')?.value,
-              email: this.formRegistro.get('email')?.value,
-              password: this.formRegistro.get('password')?.value,
-              imagenes: url,
-              tipo: 'paciente',
-              fecha: new Date(),
-            }).then(() => {
-              this.savedFileNames = [];
-              this.formRegistro.reset();
-              Swal.fire({
-                title: 'Registro exitoso',
-                text: 'Se ha registrado correctamente',
-                icon: 'success',
-                confirmButtonText: 'Aceptar',
-              });
-            });
-          } else {
-            await addDoc(collection(this.firestore, 'profesionales'), {
-              nombre: this.formRegistro.get('nombre')?.value,
-              apellido: this.formRegistro.get('apellido')?.value,
-              edad: this.formRegistro.get('edad')?.value,
-              dni: this.formRegistro.get('dni')?.value,
-              especialidad: this.formRegistro.get('especialidad')?.value,
-              email: this.formRegistro.get('email')?.value,
-              password: this.formRegistro.get('password')?.value,
-              imagenes: url,
-              tipo: 'profesional',
-              fecha: new Date(),
-            }).then(() => {
-              this.savedFileNames = [];
-              this.formRegistro.reset();
-              Swal.fire({
-                title: 'Registro exitoso',
-                text: 'Se ha registrado correctamente',
-                icon: 'success',
-                confirmButtonText: 'Aceptar',
-              });
-            });
+        await uploadBytesResumable(fileRef, control.value).then(
+          async (snapshot) => {
+            url.push(await getDownloadURL(snapshot.ref));
           }
-        });
+        );
       }
-    });
+    }
+
+    const email = this.formRegistro.get('email')?.value;
+    const password = this.formRegistro.get('password')?.value;
+
+    if (this.tipoUsuario === 'Paciente') {
+      if (email && password) {
+        this.authService
+          .crearUsuario(email, password)
+          .then((user) => {
+            this.firestoreService
+              .agregarFirestorePaciente(this.formRegistro, url[0])
+              .then(() => {
+                this.savedFileNames = [];
+                this.formRegistro.reset();
+                Swal.fire({
+                  title: 'Registro exitoso',
+                  text: 'Se ha registrado correctamente',
+                  icon: 'success',
+                  confirmButtonText: 'Aceptar',
+                });
+              });
+          })
+          .catch((error) => {
+            Swal.fire({
+              title: 'Error',
+              text: error.message,
+              icon: 'error',
+              confirmButtonText: 'Aceptar',
+            });
+          });
+      }
+    } else {
+      if (email && password) {
+        this.authService
+          .crearUsuario(email, password)
+          .then((user) => {
+            this.firestoreService
+              .agregarFirestoreProfesional(this.formRegistro, url)
+              .then(() => {
+                this.savedFileNames = [];
+                this.formRegistro.reset();
+                Swal.fire({
+                  title: 'Registro exitoso',
+                  text: 'Se ha registrado correctamente',
+                  icon: 'success',
+                  confirmButtonText: 'Aceptar',
+                });
+              });
+          })
+          .catch((error) => {
+            Swal.fire({
+              title: 'Error',
+              text: error.message,
+              icon: 'error',
+              confirmButtonText: 'Aceptar',
+            });
+          });
+      }
+    }
   }
 
   onFileChange(event: any) {

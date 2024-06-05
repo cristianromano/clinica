@@ -1,5 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
+import { FirestoreService } from '../../../services/firestore.service';
 
 @Component({
   selector: 'app-bienvenido',
@@ -9,12 +10,11 @@ import { Router } from '@angular/router';
   styleUrl: './bienvenido.component.css',
 })
 export class BienvenidoComponent {
-  constructor() {}
+  constructor(private firestoreS: FirestoreService) {}
   router: Router = inject(Router);
 
   ngOnInit(): void {
-    //Called after the constructor, initializing input properties, and the first call to ngOnChanges.
-    //Add 'implements OnInit' to the class.
+
   }
 
   irLogin() {

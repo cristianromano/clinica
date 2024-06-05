@@ -1,0 +1,14 @@
+:host {
+  display: block; /* Ensures the :host element is block-level */
+  background-image: url("/assets/pattern.jpg"); /* Background image */
+}
+
+.full-background {
+  width: 100vw;
+  height: 100vh;
+}
+
+.card {
+  background-color: #fff;
+  border-radius: 10px;
+}
