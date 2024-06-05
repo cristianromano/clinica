@@ -1,0 +1,21 @@
+:host {
+  display: block; /* Ensures the :host element is block-level */
+  background-image: url("/assets/pattern.jpg"); /* Background image */
+}
+
+.full-background {
+  width: 100vw;
+  height: 100vh;
+}
+
+.saved-files {
+  margin-top: 20px;
+}
+.text-success {
+  color: green;
+  font-weight: bold;
+}
+
+.ms-5 {
+  margin-left: 150px !important;
+}

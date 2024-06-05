@@ -1,0 +1,29 @@
+:host {
+  display: block;
+  height: 100vh;
+  background-image: url("/assets/pattern.jpg");
+  color: white; /* Ensure text is visible on a black background */
+}
+
+.full-background {
+  width: 100vw;
+  height: 100vh;
+}
+
+.vh-100 {
+  height: 100vh; /* Full viewport height */
+}
+
+.card {
+  max-width: 600px; /* Maximum width of the card */
+  border-radius: 15px; /* Rounded corners */
+  border: 1px solid #000000; /* Light gray border */
+  background-color: #ffffff; /* White background */
+  box-shadow: rgba(0, 0, 0, 0.25) 0px 54px 55px,
+    rgba(0, 0, 0, 0.12) 0px -12px 30px, rgba(0, 0, 0, 0.12) 0px 4px 6px,
+    rgba(0, 0, 0, 0.17) 0px 12px 13px, rgba(0, 0, 0, 0.09) 0px -3px 5px;
+}
+
+img {
+  border: 10px solid #000000; /* Light gray border */
+}
