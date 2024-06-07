@@ -115,7 +115,7 @@ export class RegistroComponent implements OnInit {
     if (this.tipoUsuario === 'Paciente') {
       if (email && password) {
         this.authService
-          .crearUsuario(email, password)
+          .crearUsuario(email, password, url[0])
           .then((user) => {
             this.firestoreService
               .agregarFirestorePaciente(this.formRegistro, url[0])
@@ -142,7 +142,7 @@ export class RegistroComponent implements OnInit {
     } else {
       if (email && password) {
         this.authService
-          .crearUsuario(email, password)
+          .crearUsuario(email, password, url[0])
           .then((user) => {
             this.firestoreService
               .agregarFirestoreProfesional(this.formRegistro, url)
@@ -158,9 +158,10 @@ export class RegistroComponent implements OnInit {
               });
           })
           .catch((error) => {
+            let rta = this.firebaseErrors(error.code);
             Swal.fire({
               title: 'Error',
-              text: error.message,
+              text: rta,
               icon: 'error',
               confirmButtonText: 'Aceptar',
             });
@@ -214,5 +215,20 @@ export class RegistroComponent implements OnInit {
 
   irLogin() {
     this.router.navigate(['/login']);
+  }
+
+  firebaseErrors(error: string) {
+    switch (error) {
+      case 'auth/email-already-in-use':
+        return 'Dirección de correo electrónico en uso.';
+      case 'auth/weak-password':
+        return 'contraseña debil ingrese una mas segura.';
+      case 'auth/user-not-found':
+        return 'Usuario no encontrado.';
+      case 'auth/invalid-credential':
+        return 'Credenciales invalidas.';
+      default:
+        return 'Ocurrió un error. Por favor, inténtelo nuevamente más tarde.';
+    }
   }
 }

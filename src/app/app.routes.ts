@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { BienvenidoComponent } from './components/bienvenido/bienvenido.component';
+import { authGuard } from '../guards/auth.guard';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'bienvenida', pathMatch: 'full' },
@@ -22,6 +23,14 @@ export const routes: Routes = [
     path: 'home',
     loadComponent: () =>
       import('./components/home/home.component').then((m) => m.HomeComponent),
-    // canActivate: [authguardGuard],
+    canActivate: [authGuard],
   },
+  {
+    path: 'notfound',
+    loadComponent: () =>
+      import('./components/notfound/notfound.component').then(
+        (m) => m.NotfoundComponent
+      ),
+  },
+  { path: '**', redirectTo: 'notfound' },
 ];

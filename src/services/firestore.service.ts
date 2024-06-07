@@ -57,13 +57,15 @@ export class FirestoreService {
         password: data.get('password')?.value,
         imagenes: url,
         tipo: 'profesional',
+        autorizado: false,
         fecha: new Date(),
       });
     }
   }
 
+ 
+
   obtenerFirestore(tipo: string) {
     return getDocs(collection(this.firestore, tipo));
   }
-
 }
