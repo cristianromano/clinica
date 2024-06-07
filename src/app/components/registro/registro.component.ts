@@ -12,7 +12,12 @@ import {
 } from '@angular/forms';
 import { Router } from '@angular/router';
 import { last } from 'rxjs';
-import { Firestore, addDoc, collection } from '@angular/fire/firestore';
+import {
+  Firestore,
+  addDoc,
+  collection,
+  collectionData,
+} from '@angular/fire/firestore';
 import { Auth } from '@angular/fire/auth';
 import {
   Storage,
@@ -24,20 +29,29 @@ import {
 import Swal from 'sweetalert2';
 import { FirestoreService } from '../../../services/firestore.service';
 import { AuthService } from '../../../services/auth.service';
+import { BlockUI, BlockUIModule, NgBlockUI } from 'ng-block-ui';
+
+interface Opciones {
+  etiqueta: string;
+  valor: string;
+}
 
 @Component({
   selector: 'app-registro',
   standalone: true,
-  imports: [ReactiveFormsModule, CommonModule, NavbarComponent, FormsModule],
+  imports: [
+    ReactiveFormsModule,
+    CommonModule,
+    NavbarComponent,
+    FormsModule,
+    BlockUIModule,
+  ],
   templateUrl: './registro.component.html',
   styleUrl: './registro.component.css',
 })
 export class RegistroComponent implements OnInit {
-  opciones: any[] = [
-    { etiqueta: 'Opción 1', valor: 'opcion1' },
-    { etiqueta: 'Opción 2', valor: 'opcion2' },
-    { etiqueta: 'Opción 3', valor: 'opcion3' },
-  ];
+  @BlockUI() blockUI!: NgBlockUI;
+  opciones: Opciones[] = [];
 
   storage: Storage = inject(Storage);
   firestore: Firestore = inject(Firestore);
@@ -83,6 +97,10 @@ export class RegistroComponent implements OnInit {
     imagenes: this.formBuilder.array([]),
   });
 
+  formEspecialidad = new FormGroup({
+    especialidadextra: new FormControl('', [Validators.pattern('[a-zA-Z ]*')]),
+  });
+
   constructor(
     private formBuilder: FormBuilder,
     private firestoreService: FirestoreService,
@@ -90,11 +108,21 @@ export class RegistroComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    //Called after the constructor, initializing input properties, and the first call to ngOnChanges.
-    //Add 'implements OnInit' to the class.
+    collectionData(collection(this.firestore, 'especialidades')).subscribe(
+      (especialidades) => {
+        this.opciones = [];
+        especialidades.forEach((especialidad) => {
+          this.opciones.push({
+            etiqueta: especialidad['especialidad'],
+            valor: especialidad['especialidad'],
+          });
+        });
+      }
+    );
   }
 
   async submitForm() {
+    this.blockUI.start('Ingresando datos a la base de datos...');
     const formArray = this.formRegistro.get('imagenes') as FormArray;
     let url: string | string[] = [];
 
@@ -111,15 +139,17 @@ export class RegistroComponent implements OnInit {
 
     const email = this.formRegistro.get('email')?.value;
     const password = this.formRegistro.get('password')?.value;
+    const nombre = this.formRegistro.get('nombre')?.value;
 
     if (this.tipoUsuario === 'Paciente') {
-      if (email && password) {
+      if (email && password && nombre) {
         this.authService
-          .crearUsuario(email, password, url[0])
+          .crearUsuario(email, password, url[0], nombre)
           .then((user) => {
             this.firestoreService
               .agregarFirestorePaciente(this.formRegistro, url[0])
               .then(() => {
+                this.blockUI.stop();
                 this.savedFileNames = [];
                 this.formRegistro.reset();
                 Swal.fire({
@@ -131,33 +161,7 @@ export class RegistroComponent implements OnInit {
               });
           })
           .catch((error) => {
-            Swal.fire({
-              title: 'Error',
-              text: error.message,
-              icon: 'error',
-              confirmButtonText: 'Aceptar',
-            });
-          });
-      }
-    } else {
-      if (email && password) {
-        this.authService
-          .crearUsuario(email, password, url[0])
-          .then((user) => {
-            this.firestoreService
-              .agregarFirestoreProfesional(this.formRegistro, url)
-              .then(() => {
-                this.savedFileNames = [];
-                this.formRegistro.reset();
-                Swal.fire({
-                  title: 'Registro exitoso',
-                  text: 'Se ha registrado correctamente',
-                  icon: 'success',
-                  confirmButtonText: 'Aceptar',
-                });
-              });
-          })
-          .catch((error) => {
+            this.blockUI.stop();
             let rta = this.firebaseErrors(error.code);
             Swal.fire({
               title: 'Error',
@@ -166,6 +170,80 @@ export class RegistroComponent implements OnInit {
               confirmButtonText: 'Aceptar',
             });
           });
+      }
+    } else {
+      if (email && password && nombre) {
+        this.authService
+          .crearUsuario(email, password, url[0], nombre)
+          .then((user) => {
+            this.firestoreService
+              .agregarFirestoreProfesional(this.formRegistro, url)
+              .then(() => {
+                this.blockUI.stop();
+                this.savedFileNames = [];
+                this.formRegistro.reset();
+                Swal.fire({
+                  title: 'Registro exitoso',
+                  text: 'Se ha registrado correctamente',
+                  icon: 'success',
+                  confirmButtonText: 'Aceptar',
+                });
+              });
+          })
+          .catch((error) => {
+            this.blockUI.stop();
+            let rta = this.firebaseErrors(error.code);
+            Swal.fire({
+              title: 'Error',
+              text: rta,
+              icon: 'error',
+              confirmButtonText: 'Aceptar',
+            });
+          });
+      }
+    }
+  }
+
+  async agregarEspecialidad() {
+    let rta;
+    this.blockUI.start('Agregando especialidad...');
+    const especialidad = this.formEspecialidad.get('especialidadextra')?.value;
+    if (especialidad) {
+      rta = await this.firestoreService.obtenerFirestoreEspecialidades(
+        especialidad
+      );
+    }
+
+    if (rta) {
+      this.blockUI.stop();
+      Swal.fire({
+        title: 'Error',
+        text: 'La especialidad ya existe',
+        icon: 'error',
+        confirmButtonText: 'Aceptar',
+      });
+    } else {
+      if (this.formEspecialidad.get('especialidadextra')?.value !== '') {
+        addDoc(collection(this.firestore, 'especialidades'), {
+          especialidad: this.formEspecialidad.get('especialidadextra')?.value,
+        }).then(() => {
+          this.blockUI.stop();
+          Swal.fire({
+            title: 'Especialidad agregada',
+            text: 'Se ha agregado la especialidad correctamente',
+            icon: 'success',
+            confirmButtonText: 'Aceptar',
+          });
+          this.formEspecialidad.reset();
+        });
+      } else {
+        this.blockUI.stop();
+        Swal.fire({
+          title: 'Error',
+          text: 'Debe ingresar una especialidad',
+          icon: 'error',
+          confirmButtonText: 'Aceptar',
+        });
       }
     }
   }

@@ -1,0 +1,17 @@
+.navbar {
+  background-color: #3498db; /* Change to your desired background color */
+}
+
+.nav-link {
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.desloguear {
+  cursor: pointer;
+}
+
+.desloguear:hover {
+  background-color: #e74c3c; /* Change to your desired hover background color */
+  color: #fff; /* Change to your desired hover text color */
+}

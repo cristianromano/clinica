@@ -6,7 +6,12 @@ import {
   getDocs,
   updateDoc,
   UpdateData,
+  query,
+  where,
+  collectionData,
+  and,
 } from '@angular/fire/firestore';
+import Swal from 'sweetalert2';
 
 @Injectable({
   providedIn: 'root',
@@ -63,9 +68,54 @@ export class FirestoreService {
     }
   }
 
- 
+  async obtenerFirestoreUsuario(email: string) {
+    const querySnapshotEmail: any = query(
+      collection(this.firestore, 'profesional'),
+      where('email', '==', email)
+    );
+
+    const querySnapshotAutorizado: any = query(
+      collection(this.firestore, 'profesional'),
+      where('email', '==', email),
+      where('autorizado', '==', true)
+    );
+
+    const datos = await getDocs(querySnapshotEmail);
+    if (datos.empty) {
+      return this.obtenerFirestoreUsuarioPaciente(email);
+    } else {
+      return datos.docs.map((doc) => doc.data());
+    }
+  }
+
+  async obtenerFirestoreUsuarioPaciente(email: string) {
+    const querySnapshot: any = query(
+      collection(this.firestore, 'pacientes'),
+      where('email', '==', email)
+    );
+
+    const datos = await getDocs(querySnapshot);
+    if (datos.empty) {
+      return [];
+    }
+
+    return datos.docs.map((doc) => doc.data());
+  }
 
   obtenerFirestore(tipo: string) {
     return getDocs(collection(this.firestore, tipo));
+  }
+
+  async obtenerFirestoreEspecialidades(especialidad: string) {
+    let firestoreQuery: any = query(
+      collection(this.firestore, 'especialidades'),
+      where('especialidad', '==', especialidad)
+    );
+
+    const especialidades = (await getDocs(firestoreQuery)).empty;
+    if (especialidades == false) {
+      return true;
+    }
+    return false;
   }
 }
