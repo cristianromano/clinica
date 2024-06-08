@@ -83,6 +83,14 @@ export class LoginComponent {
                 icon: 'error',
               });
             }
+          } else if (estaValidado.tipo == 'administrador') {
+            this.blockUI.stop();
+            Swal.fire({
+              title: 'Ingreso exitoso',
+              text: 'Bienvenido',
+              icon: 'success',
+            });
+            this.router.navigate(['/home']);
           } else {
             if (estaValidado.validado) {
               this.blockUI.stop();
@@ -125,6 +133,13 @@ export class LoginComponent {
   loginPaciente() {
     this.formLogin.setValue({
       email: 'test-pootof6dt@srv1.mail-tester.com',
+      password: 'asdasd123',
+    });
+  }
+
+  loginAdmin() {
+    this.formLogin.setValue({
+      email: 'cristianromano2@gmail.com',
       password: 'asdasd123',
     });
   }

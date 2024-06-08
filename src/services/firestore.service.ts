@@ -82,15 +82,34 @@ export class FirestoreService {
 
     const datos = await getDocs(querySnapshotEmail);
     if (datos.empty) {
-      return this.obtenerFirestoreUsuarioPaciente(email);
+      let paciente =
+        (await this.obtenerFirestoreUsuarioPaciente(email)).length > 0;
+      if (!paciente) {
+        return this.obtenerFirestoreUsuarioAdmin(email);
+      }
     } else {
       return datos.docs.map((doc) => doc.data());
     }
+    return datos.docs.map((doc) => doc.data());
   }
 
   async obtenerFirestoreUsuarioPaciente(email: string) {
     const querySnapshot: any = query(
       collection(this.firestore, 'pacientes'),
+      where('email', '==', email)
+    );
+
+    const datos = await getDocs(querySnapshot);
+    if (datos.empty) {
+      return [];
+    }
+
+    return datos.docs.map((doc) => doc.data());
+  }
+
+  async obtenerFirestoreUsuarioAdmin(email: string) {
+    const querySnapshot: any = query(
+      collection(this.firestore, 'administradores'),
       where('email', '==', email)
     );
 
