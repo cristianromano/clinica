@@ -1,0 +1,9 @@
+.full-background {
+  width: 100vw;
+  height: 100vh;
+}
+
+:host {
+  display: block; /* Ensures the :host element is block-level */
+  background-image: url("/assets/pattern.jpg");
+}

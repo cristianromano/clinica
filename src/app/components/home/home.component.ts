@@ -33,4 +33,8 @@ export class HomeComponent implements OnInit {
         });
     }
   }
+
+  irAdministracion() {
+    this.router.navigate(['administracion']);
+  }
 }

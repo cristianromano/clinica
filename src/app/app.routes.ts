@@ -32,5 +32,12 @@ export const routes: Routes = [
         (m) => m.NotfoundComponent
       ),
   },
+  {
+    path: 'administracion',
+    loadComponent: () =>
+      import('./components/administracion/administracion.component').then(
+        (m) => m.AdministracionComponent
+      ),
+  },
   { path: '**', redirectTo: 'notfound' },
 ];

@@ -10,6 +10,7 @@ import {
   where,
   collectionData,
   and,
+  doc,
 } from '@angular/fire/firestore';
 import Swal from 'sweetalert2';
 
@@ -66,6 +67,20 @@ export class FirestoreService {
         fecha: new Date(),
       });
     }
+  }
+
+  async agregarFirestoreAdministrador(data: any, url: Array<string>) {
+    addDoc(collection(this.firestore, 'administradores'), {
+      nombre: data.get('nombre')?.value,
+      apellido: data.get('apellido')?.value,
+      edad: data.get('edad')?.value,
+      dni: data.get('dni')?.value,
+      email: data.get('email')?.value,
+      password: data.get('password')?.value,
+      imagenes: url,
+      tipo: 'administrador',
+      fecha: new Date(),
+    });
   }
 
   async obtenerFirestoreUsuario(email: string) {
@@ -136,5 +151,23 @@ export class FirestoreService {
       return true;
     }
     return false;
+  }
+
+  autorizarProfesional(profesional: any) {
+    if (profesional.autorizado == false) {
+      updateDoc(doc(this.firestore, 'profesional', profesional.id), {
+        autorizado: true,
+      });
+    } else {
+      updateDoc(doc(this.firestore, 'profesional', profesional.id), {
+        autorizado: false,
+      });
+    }
+  }
+
+  obtenerFirestoreTodosProfesional() {
+    return collectionData(collection(this.firestore, 'profesional'), {
+      idField: 'id',
+    });
   }
 }
