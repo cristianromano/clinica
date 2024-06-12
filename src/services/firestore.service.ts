@@ -170,4 +170,9 @@ export class FirestoreService {
       idField: 'id',
     });
   }
+  obtenerFirestoreTodosPacientes() {
+    return collectionData(collection(this.firestore, 'pacientes'), {
+      idField: 'id',
+    });
+  }
 }
