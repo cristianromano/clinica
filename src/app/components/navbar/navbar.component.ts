@@ -1,6 +1,8 @@
-import { Component, inject } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { Auth } from '@angular/fire/auth';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { Subscription } from 'rxjs';
+import { AuthService } from '../../../services/auth.service';
 
 @Component({
   selector: 'app-navbar',
@@ -9,21 +11,19 @@ import { Router, RouterLink, RouterLinkActive } from '@angular/router';
   templateUrl: './navbar.component.html',
   styleUrl: './navbar.component.css',
 })
-export class NavbarComponent {
+export class NavbarComponent implements OnInit {
   auth: Auth = inject(Auth);
   nombre?: any;
   foto?: any;
-  constructor(private route: Router) {}
+
+  constructor(private route: Router, private authS: AuthService) {}
 
   ngOnInit(): void {
-    this.auth.onAuthStateChanged((user) => {
-      if (!user) {
-        console.log('No hay usuario');
-      } else {
-        this.nombre = user.email;
-        this.foto = user.photoURL;
-      }
-    });
+    let user = this.authS.logueado();
+    if (user) {
+      this.nombre = user.email;
+      this.foto = user.photoURL;
+    }
   }
 
   irBio() {

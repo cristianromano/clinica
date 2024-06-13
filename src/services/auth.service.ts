@@ -41,6 +41,24 @@ export class AuthService {
     });
   }
 
+  async crearUsuarioAdmin(
+    email: string,
+    password: string,
+    foto: string,
+    nombre: string
+  ) {
+    return await createUserWithEmailAndPassword(
+      this.auth,
+      email,
+      password
+    ).then(async (userCredential) => {
+      updateProfile(userCredential.user, {
+        photoURL: foto,
+        displayName: nombre,
+      });
+    });
+  }
+
   getUser() {
     return this.auth.currentUser;
   }

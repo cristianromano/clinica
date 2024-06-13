@@ -19,6 +19,7 @@ import {
 } from '@angular/fire/storage';
 import Swal from 'sweetalert2';
 import { ColoresPipe } from '../../../pipes/colores.pipe';
+import { AuthService } from '../../../services/auth.service';
 
 @Component({
   selector: 'app-administracion',
@@ -31,7 +32,8 @@ export class AdministracionComponent implements OnInit {
   $index: any;
   constructor(
     private firestoreS: FirestoreService,
-    private formBuilder: FormBuilder
+    private formBuilder: FormBuilder,
+    private authS: AuthService
   ) {}
   arrEspecialistas: any = [];
   arrPacientes: any = [];
@@ -91,6 +93,9 @@ export class AdministracionComponent implements OnInit {
   async submit() {
     const formArray = this.formRegistro.get('imagenes') as FormArray;
     let url: string | string[] = [];
+    let nombre = this.formRegistro.value.nombre;
+    let email = this.formRegistro.value.email;
+    let password = this.formRegistro.value.password;
 
     for (const control of formArray.controls) {
       if (control.value !== '') {
@@ -101,14 +106,20 @@ export class AdministracionComponent implements OnInit {
             this.firestoreS
               .agregarFirestoreAdministrador(this.formRegistro, url)
               .then((res) => {
-                this.formRegistro.reset();
-                this.savedFileNames = [];
-                Swal.fire({
-                  title: 'Registro exitoso',
-                  text: 'Se ha registrado correctamente',
-                  icon: 'success',
-                  confirmButtonText: 'Aceptar',
-                });
+                if (nombre && email && password) {
+                  this.authS
+                    .crearUsuarioAdmin(email, password, url[0], nombre)
+                    .then((res) => {
+                      this.formRegistro.reset();
+                      this.savedFileNames = [];
+                      Swal.fire({
+                        title: 'Registro exitoso',
+                        text: 'Se ha registrado correctamente',
+                        icon: 'success',
+                        confirmButtonText: 'Aceptar',
+                      });
+                    });
+                }
               });
           }
         );
