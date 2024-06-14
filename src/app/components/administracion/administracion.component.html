@@ -1,68 +1,70 @@
 <div class="full-background">
   <app-navbar></app-navbar>
   <div class="d-flex flex-row justify-content-center align-items-center">
-    <table
-      class="table mt-3 me-5 table-secondary"
-      style="height: 150px; width: 100px"
+    <div
+      class="d-flex flex-column justify-content-center align-items-center panelusuarios"
     >
-      <thead>
-        <tr>
-          <th scope="col">#</th>
-          <th scope="col">Foto</th>
-          <th scope="col">Nombre</th>
-          <th scope="col">Apellido</th>
-          <th scope="col">Obra social</th>
-          <th scope="col">Aprobado</th>
-        </tr>
-      </thead>
-      <tbody *ngFor="let item of arrPacientes; let i = index">
-        <tr>
-          <th scope="row">{{ i + 1 }}</th>
-          <td>
-            <img
-              src="{{ item.imagenes }}"
-              alt="..."
-              style="height: 50px; width: 50px"
-            />
-          </td>
-          <td>{{ item.nombre }}</td>
-          <td>{{ item.apellido }}</td>
-          <td>{{ item.obrasocial }}</td>
-          <td>{{ item.autorizado ? "Autorizado" : "No autorizado" }}</td>
-        </tr>
-      </tbody>
-    </table>
-    <table class="table mt-3 me-5" style="height: 150px; width: 100px">
-      <thead>
-        <tr>
-          <th scope="col">#</th>
-          <th scope="col">Foto</th>
-          <th scope="col">Nombre</th>
-          <th scope="col">Apellido</th>
-          <th scope="col">Especialidad</th>
-          <th scope="col">Aprobado</th>
-        </tr>
-      </thead>
-      <tbody
-        *ngFor="let item of arrEspecialistas; let i = index"
-        (click)="autorizarProfesional(item)"
-      >
-        <tr [ngClass]="item.autorizado | colores">
-          <th scope="row">{{ i + 1 }}</th>
-          <td>
-            <img
-              src="{{ item.imagenes }}"
-              alt="..."
-              style="height: 50px; width: 50px"
-            />
-          </td>
-          <td>{{ item.nombre }}</td>
-          <td>{{ item.apellido }}</td>
-          <td>{{ item.especialidad }}</td>
-          <td>{{ item.autorizado ? "Autorizado" : "No autorizado" }}</td>
-        </tr>
-      </tbody>
-    </table>
+      <h1>Panel Usuarios</h1>
+      <table class="table mt-3 table-secondary">
+        <thead>
+          <tr>
+            <th scope="col">#</th>
+            <th scope="col">Foto</th>
+            <th scope="col">Nombre</th>
+            <th scope="col">Apellido</th>
+            <th scope="col">Obra social</th>
+            <th scope="col">Aprobado</th>
+          </tr>
+        </thead>
+        <tbody *ngFor="let item of arrPacientes; let i = index">
+          <tr>
+            <th scope="row">{{ i + 1 }}</th>
+            <td>
+              <img
+                src="{{ item.imagenes }}"
+                alt="..."
+                style="height: 50px; width: 50px"
+              />
+            </td>
+            <td>{{ item.nombre }}</td>
+            <td>{{ item.apellido }}</td>
+            <td>{{ item.obrasocial }}</td>
+            <td>{{ item.autorizado ? "Autorizado" : "No autorizado" }}</td>
+          </tr>
+        </tbody>
+      </table>
+      <table class="table mt-3 me-5" style="height: 150px; width: 100px">
+        <thead>
+          <tr>
+            <th scope="col">#</th>
+            <th scope="col">Foto</th>
+            <th scope="col">Nombre</th>
+            <th scope="col">Apellido</th>
+            <th scope="col">Especialidad</th>
+            <th scope="col">Aprobado</th>
+          </tr>
+        </thead>
+        <tbody
+          *ngFor="let item of arrEspecialistas; let i = index"
+          (click)="autorizarProfesional(item)"
+        >
+          <tr [ngClass]="item.autorizado | colores">
+            <th scope="row">{{ i + 1 }}</th>
+            <td>
+              <img
+                src="{{ item.imagenes }}"
+                alt="..."
+                style="height: 50px; width: 50px"
+              />
+            </td>
+            <td>{{ item.nombre }}</td>
+            <td>{{ item.apellido }}</td>
+            <td>{{ item.especialidad }}</td>
+            <td>{{ item.autorizado ? "Autorizado" : "No autorizado" }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
     <div class="card p-4 shadow mt-3" style="width: 30rem">
       <h2 class="text-center mb-4 mt-1">Formulario de Administrador</h2>
       <form [formGroup]="formRegistro" (ngSubmit)="submit()">
