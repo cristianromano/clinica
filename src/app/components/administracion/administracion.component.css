@@ -1,6 +1,8 @@
 .full-background {
-  width: auto;
-  height: auto;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh; /* Ensures the content area is at least the height of the viewport */
+  width: 100%;
 }
 
 :host {
@@ -9,9 +11,11 @@
 }
 
 .panelusuarios {
-  background-color: antiquewhite;
+  background-color: #8ecae6;
   padding: 10px;
   border-radius: 10px;
   margin: 10px;
   width: 850px;
+  box-shadow: 4px 8px 5px rgba(0, 0, 0, 0.2);
+  height: 750px;
 }

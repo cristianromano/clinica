@@ -1,0 +1,107 @@
+<div class="full-background">
+  <app-navbar></app-navbar>
+  <div class="d-flex flex-row justify-content-center align-items-center">
+    <div
+      class="d-flex flex-column justify-content-center align-items-center panelusuarios"
+    >
+      <div class="d-flex flex-column justify-content-center align-items mt-3">
+        <h4>Buscar por Especialista/Especialidad</h4>
+        <div class="mt-1 mb-1">
+          <input
+            type="text"
+            class="form-control"
+            placeholder="Buscar profesional"
+            [(ngModel)]="searchEspecialista"
+          />
+        </div>
+      </div>
+      <table class="table">
+        <thead>
+          <tr>
+            <th scope="col">#</th>
+            <th scope="col">Foto</th>
+            <th scope="col">Nombre</th>
+            <th scope="col">Apellido</th>
+            <th scope="col">Especialidad</th>
+          </tr>
+        </thead>
+        <tbody
+          *ngFor="
+            let item of arrProfesionales
+              | filtro : searchEspecialista
+              | paginate
+                : { itemsPerPage: 5, currentPage: p, id: 'profesionales' };
+            let i = index
+          "
+          (click)="solicitarTurno(item)"
+        >
+          <tr [ngClass]="item.autorizado">
+            <th scope="row">{{ i + 1 }}</th>
+            <td>
+              <img
+                src="{{ item.imagenes }}"
+                alt="..."
+                style="height: 50px; width: 50px"
+              />
+            </td>
+            <td>{{ item.nombre }}</td>
+            <td>{{ item.apellido }}</td>
+            <td>{{ item.especialidad }}</td>
+          </tr>
+        </tbody>
+      </table>
+      <pagination-controls
+        (pageChange)="p = $event"
+        id="profesionales"
+        class="my-pagination"
+      ></pagination-controls>
+    </div>
+    <div>
+      <div class="card p-4 shadow ms-3 mt-3" style="padding: 20px">
+        <h4>Turnos</h4>
+        <div
+          class="d-flex flex-column justify-content-center align-items-center panelturnos"
+        >
+          <table class="table">
+            <thead>
+              <tr>
+                <th scope="col">#</th>
+                <th scope="col">Medico</th>
+                <th scope="col">Especialidad</th>
+                <th scope="col">Hora</th>
+                <th scope="col">Estado</th>
+                <th scope="col">Calificar Medico</th>
+              </tr>
+            </thead>
+            <tbody
+              *ngFor="
+                let item of arrTurnos
+                  | paginate
+                    : { itemsPerPage: 5, currentPage: ptwo, id: 'turnos' };
+                let i = index
+              "
+            >
+              <tr [ngClass]="item.estado | coloresturnos">
+                <th scope="row">{{ i + 1 }}</th>
+                <td (click)="manejoTurno(item)">{{ item.medico }}</td>
+                <td (click)="manejoTurno(item)">{{ item.especialidad }}</td>
+                <td (click)="manejoTurno(item)">{{ item.hora }}</td>
+                <td (click)="manejoTurno(item)">{{ item.estado }}</td>
+                <td>
+                  <button type="button" class="btn btn-primary" disabled>
+                    Calificar
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <pagination-controls
+            (pageChange)="ptwo = $event"
+            id="turnos"
+            class="my-pagination"
+          ></pagination-controls>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

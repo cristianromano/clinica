@@ -37,4 +37,8 @@ export class HomeComponent implements OnInit {
   irAdministracion() {
     this.router.navigate(['administracion']);
   }
+
+  irTurnoPaciente() {
+    this.router.navigate(['turnos/paciente']);
+  }
 }

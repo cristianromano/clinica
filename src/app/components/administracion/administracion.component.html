@@ -4,8 +4,16 @@
     <div
       class="d-flex flex-column justify-content-center align-items-center panelusuarios"
     >
-      <h1>Panel Usuarios</h1>
-      <table class="table mt-3 table-secondary">
+      <h1
+        style="
+          border: 1px solid black;
+          padding: 0 120px;
+          box-shadow: 0 4px 8px 5px rgba(0, 0, 0, 0.281);
+        "
+      >
+        Panel Usuarios
+      </h1>
+      <table class="table mt-3 table-light">
         <thead>
           <tr>
             <th scope="col">#</th>
@@ -16,7 +24,13 @@
             <th scope="col">Aprobado</th>
           </tr>
         </thead>
-        <tbody *ngFor="let item of arrPacientes; let i = index">
+        <tbody
+          *ngFor="
+            let item of arrPacientes
+              | paginate : { itemsPerPage: 3, currentPage: p, id: 'tableOne' };
+            let i = index
+          "
+        >
           <tr>
             <th scope="row">{{ i + 1 }}</th>
             <td>
@@ -33,6 +47,10 @@
           </tr>
         </tbody>
       </table>
+      <pagination-controls
+        (pageChange)="p = $event"
+        id="tableOne"
+      ></pagination-controls>
       <table class="table mt-3 me-5" style="height: 150px; width: 100px">
         <thead>
           <tr>
@@ -45,7 +63,12 @@
           </tr>
         </thead>
         <tbody
-          *ngFor="let item of arrEspecialistas; let i = index"
+          *ngFor="
+            let item of arrEspecialistas
+              | paginate
+                : { itemsPerPage: 2, currentPage: pageTwo, id: 'tableTwo' };
+            let i = index
+          "
           (click)="autorizarProfesional(item)"
         >
           <tr [ngClass]="item.autorizado | colores">
@@ -64,7 +87,12 @@
           </tr>
         </tbody>
       </table>
+      <pagination-controls
+        (pageChange)="pageTwo = $event"
+        id="tableTwo"
+      ></pagination-controls>
     </div>
+
     <div class="card p-4 shadow mt-3" style="width: 30rem">
       <h2 class="text-center mb-4 mt-1">Formulario de Administrador</h2>
       <form [formGroup]="formRegistro" (ngSubmit)="submit()">
@@ -174,6 +202,7 @@
         class="form-control"
         id="imagenes"
         accept="image/*"
+        multiple
         formControlName="imagenes"
         (change)="onFileChange($event)"
       />

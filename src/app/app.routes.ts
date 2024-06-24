@@ -23,7 +23,6 @@ export const routes: Routes = [
     path: 'home',
     loadComponent: () =>
       import('./components/home/home.component').then((m) => m.HomeComponent),
-    canActivate: [authGuard],
   },
   {
     path: 'notfound',
@@ -38,6 +37,13 @@ export const routes: Routes = [
       import('./components/administracion/administracion.component').then(
         (m) => m.AdministracionComponent
       ),
+  },
+  {
+    path: 'turnos/paciente',
+    loadComponent: () =>
+      import(
+        './components/pacientes/paciente-turnos/paciente-turnos.component'
+      ).then((m) => m.PacienteTurnosComponent),
   },
   { path: '**', redirectTo: 'notfound' },
 ];

@@ -1,0 +1,35 @@
+.full-background {
+  width: 100vw;
+  height: 100vh;
+}
+
+:host {
+  display: block; /* Ensures the :host element is block-level */
+  background-image: url("/assets/pattern.jpg");
+}
+
+.my-pagination ::ng-deep .ngx-pagination .current {
+  color: black;
+}
+
+.panelusuarios {
+  background-color: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 5px;
+  margin-top: 10px;
+  padding: 50px;
+  background-color: antiquewhite;
+  cursor: pointer;
+}
+
+.panelturnos {
+  border-radius: 5px;
+  margin-top: 10px;
+  padding: 50px;
+  background-color: antiquewhite;
+  cursor: pointer;
+}
+
+.table {
+  width: 500px;
+}

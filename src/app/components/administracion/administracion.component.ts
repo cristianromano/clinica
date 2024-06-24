@@ -20,15 +20,24 @@ import {
 import Swal from 'sweetalert2';
 import { ColoresPipe } from '../../../pipes/colores.pipe';
 import { AuthService } from '../../../services/auth.service';
+import { NgxPaginationModule } from 'ngx-pagination';
 
 @Component({
   selector: 'app-administracion',
   standalone: true,
-  imports: [NavbarComponent, CommonModule, ReactiveFormsModule, ColoresPipe],
+  imports: [
+    NavbarComponent,
+    CommonModule,
+    ReactiveFormsModule,
+    ColoresPipe,
+    NgxPaginationModule,
+  ],
   templateUrl: './administracion.component.html',
   styleUrl: './administracion.component.css',
 })
 export class AdministracionComponent implements OnInit {
+  p: number = 1;
+  pageTwo: number = 1;
   $index: any;
   constructor(
     private firestoreS: FirestoreService,
@@ -88,6 +97,7 @@ export class AdministracionComponent implements OnInit {
 
   autorizarProfesional(profesional: any) {
     this.firestoreS.autorizarProfesional(profesional);
+  
   }
 
   async submit() {

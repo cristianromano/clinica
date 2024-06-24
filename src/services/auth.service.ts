@@ -5,6 +5,7 @@ import {
   updateProfile,
   sendEmailVerification,
   signInWithEmailAndPassword,
+  onAuthStateChanged,
 } from '@angular/fire/auth';
 import { FirestoreService } from './firestore.service';
 import { Firestore, collection, getDocs } from '@angular/fire/firestore';
@@ -21,6 +22,18 @@ export class AuthService {
   logueado() {
     return this.auth.currentUser;
   }
+
+  // obtenerUser() {
+  //   onAuthStateChanged(this.auth, (user) => {
+  //     if (user) {
+  //       this.firestoreS.obtenerFirestoreUsuario(user.email!).then((user) => {
+  //         return user;
+  //       });
+  //     } else {
+  //       return null;
+  //     }
+  //   });
+  // }
 
   async crearUsuario(
     email: string,
