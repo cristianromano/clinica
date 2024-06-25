@@ -52,5 +52,12 @@ export const routes: Routes = [
         './components/especialistas/especialista-panel/especialista-panel.component'
       ).then((m) => m.EspecialistaPanelComponent),
   },
+  {
+    path: 'admin/turnos',
+    loadComponent: () =>
+      import('./components/admin/admin-turnos/admin-turnos.component').then(
+        (m) => m.AdminTurnosComponent
+      ),
+  },
   { path: '**', redirectTo: 'notfound' },
 ];

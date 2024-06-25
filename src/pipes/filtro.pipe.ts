@@ -12,10 +12,17 @@ export class FiltroPipe implements PipeTransform {
     let filteredItems = [];
     let searchLower = search.toLowerCase();
 
-    if (value.includes('nombre')) {
+    if (value.some((elemento) => 'nombre' in elemento)) {
       filteredItems = value.filter((item) => {
         return (
           item.nombre.toLowerCase().includes(searchLower) ||
+          item.especialidad.toLowerCase().includes(searchLower)
+        );
+      });
+    } else if (value.some((elemento) => 'medico' in elemento)) {
+      filteredItems = value.filter((item) => {
+        return (
+          item.medico.toLowerCase().includes(searchLower) ||
           item.especialidad.toLowerCase().includes(searchLower)
         );
       });

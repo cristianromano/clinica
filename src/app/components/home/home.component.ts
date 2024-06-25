@@ -45,4 +45,9 @@ export class HomeComponent implements OnInit {
   irPanelEspecialista() {
     this.router.navigate(['especialistas/panel']);
   }
+
+  irTurnosAdmin() {
+    this.router.navigate(['admin/turnos']);
+  }
+  
 }

@@ -3,7 +3,7 @@
   <div class="d-flex flex-row justify-content-center align-items-center">
     <div
       *ngIf="user.tipo === 'administrador'"
-      class="card p-4 shadow mt-3 justify-content-center align-items-center"
+      class="card p-4 shadow mt-3 me-3 justify-content-center align-items-center"
     >
       <img
         src="/assets/usuarios.png"
@@ -11,16 +11,20 @@
         alt="..."
         style="height: 150px; width: 150px"
       />
-      <div class="card-body">
-        <h5 class="card-title">Manejo de usuarios</h5>
-        <button class="btn btn-danger ms-5 mt-3" (click)="irAdministracion()">
-          Ingresar
-        </button>
+      <div class="card-body mt-3">
+        <div
+          class="d-flex flex-column justify-content-center align-items-center"
+        >
+          <h5 class="card-title">Manejo de usuarios</h5>
+          <button class="btn btn-danger mt-3" (click)="irAdministracion()">
+            Ingresar
+          </button>
+        </div>
       </div>
     </div>
     <div
       *ngIf="user.tipo === 'profesional' || user.tipo === 'administrador'"
-      class="card p-4 shadow mt-3 justify-content-center align-items-center"
+      class="card p-4 shadow mt-3 me-3 justify-content-center align-items-center"
     >
       <img
         src="/assets/medico.png"
@@ -28,19 +32,20 @@
         alt="..."
         style="height: 150px; width: 150px"
       />
-      <div class="card-body">
-        <h5 class="card-title">Panel Especialista</h5>
-        <button
-          class="btn btn-danger ms-5 mt-3"
-          (click)="irPanelEspecialista()"
+      <div class="card-body mt-3">
+        <div
+          class="d-flex flex-column justify-content-center align-items-center"
         >
-          Ingresar
-        </button>
+          <h5 class="card-title">Panel Especialista</h5>
+          <button class="btn btn-danger mt-3" (click)="irPanelEspecialista()">
+            Ingresar
+          </button>
+        </div>
       </div>
     </div>
     <div
       *ngIf="user.tipo === 'paciente' || user.tipo === 'administrador'"
-      class="card p-4 shadow mt-3 justify-content-center align-items-center"
+      class="card p-4 shadow mt-3 me-3 justify-content-center align-items-center"
     >
       <img
         src="/assets/paciente.png"
@@ -48,11 +53,36 @@
         alt="..."
         style="height: 150px; width: 150px"
       />
-      <div class="card-body">
-        <h5 class="card-title">Turnos</h5>
-        <button class="btn btn-danger ms-5 mt-3" (click)="irTurnoPaciente()">
-          Ingresar
-        </button>
+      <div class="card-body mt-3">
+        <div
+          class="d-flex flex-column justify-content-center align-items-center"
+        >
+          <h5 class="card-title">Turnos</h5>
+          <button class="btn btn-danger mt-3" (click)="irTurnoPaciente()">
+            Ingresar
+          </button>
+        </div>
+      </div>
+    </div>
+    <div
+      *ngIf="user.tipo === 'administrador'"
+      class="card p-4 shadow mt-3 me-3 justify-content-center align-items-center"
+    >
+      <img
+        src="/assets/admin.png"
+        class="card-img-top"
+        alt="..."
+        style="height: 150px; width: 150px"
+      />
+      <div class="card-body mt-3">
+        <div
+          class="d-flex flex-column justify-content-center align-items-center"
+        >
+          <h5 class="card-title">Turnos administrador</h5>
+          <button class="btn btn-danger mt-3" (click)="irTurnosAdmin()">
+            Ingresar
+          </button>
+        </div>
       </div>
     </div>
   </div>

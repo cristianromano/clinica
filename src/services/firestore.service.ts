@@ -176,5 +176,16 @@ export class FirestoreService {
     });
   }
 
+  gestionarTurnoCancelado(id: string, estado: string, comentario: string) {
+    return updateDoc(doc(this.firestore, 'turnos', id), {
+      estado: estado,
+      comentario: comentario,
+    });
+  }
 
+  obtenerTurnos() {
+    return collectionData(collection(this.firestore, 'turnos'), {
+      idField: 'id',
+    });
+  }
 }
