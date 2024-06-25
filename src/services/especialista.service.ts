@@ -5,6 +5,8 @@ import {
   where,
   query,
   collectionData,
+  updateDoc,
+  doc,
 } from '@angular/fire/firestore';
 
 @Injectable({
@@ -22,6 +24,34 @@ export class EspecialistaService {
 
     return collectionData(q, {
       idField: 'id',
+    });
+  }
+
+  gestionarTurno(id: string, estado: string) {
+    return updateDoc(doc(this.firestore, 'turnos', id), {
+      estado: estado,
+    });
+  }
+
+  gestionarTurnoCancelado(id: string, estado: string, comentario: string) {
+    return updateDoc(doc(this.firestore, 'turnos', id), {
+      estado: estado,
+      comentario: comentario,
+    });
+  }
+
+  gestionarTurnoRechazado(id: string, estado: string, comentario: string) {
+    return updateDoc(doc(this.firestore, 'turnos', id), {
+      estado: estado,
+      comentario: comentario,
+    });
+  }
+
+  gestionarTurnoAceptado(id: string, estado: string, comentario: string) {
+    return updateDoc(doc(this.firestore, 'turnos', id), {
+      estado: estado,
+      comentario: comentario[0],
+      diagnostico: comentario[1],
     });
   }
 }

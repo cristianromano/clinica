@@ -33,6 +33,7 @@
                 : { itemsPerPage: 5, currentPage: p, id: 'profesionales' };
             let i = index
           "
+          (click)="gestionarTurno(item)"
         >
           <tr [ngClass]="item.estado | coloresturnos">
             <th scope="row">{{ i + 1 }}</th>

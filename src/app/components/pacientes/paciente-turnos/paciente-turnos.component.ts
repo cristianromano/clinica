@@ -83,6 +83,62 @@ export class PacienteTurnosComponent implements OnInit {
     });
   }
 
+  calificarMedico(turno: any) {
+    if (turno.calificacion) {
+      Swal.fire('Calificacion ya realizada', '', 'info');
+      return;
+    }
+    Swal.fire({
+      title: 'Califique al medico',
+      input: 'radio',
+      inputOptions: {
+        1: '1',
+        2: '2',
+        3: '3',
+        4: '4',
+        5: '5',
+      },
+      showDenyButton: true,
+      confirmButtonText: `Calificar`,
+      denyButtonText: `No calificar`,
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.pacienteS
+          .ingresarCalificacionMedico(turno.id, result.value)
+          .then(() => {
+            Swal.fire(`Calificacion:${result.value}`, '', 'success');
+          });
+      } else if (result.isDenied) {
+        Swal.fire('Calificacion no realizada', '', 'info');
+      }
+    });
+  }
+
+  async realizarEncuesta(turno: any) {
+    if (turno.encuesta) {
+      Swal.fire('Encuesta ya realizada', '', 'info');
+      return;
+    }
+
+    const { value: encuesta } = await Swal.fire({
+      title: 'Realice encuesta',
+      input: 'text',
+      inputPlaceholder: 'Ingrese encuesta',
+      showCancelButton: true,
+      inputValidator: (result) => {
+        return !result && 'Complete el campo con texto valido';
+      },
+    });
+
+    if (encuesta) {
+      this.pacienteS.ingresarEncuesta(turno.id, encuesta).then(() => {
+        Swal.fire('Encuesta realizada', '', 'success');
+      });
+    } else {
+      Swal.fire('Encuesta no realizada', '', 'info');
+    }
+  }
+
   manejoTurno(turno: any) {
     if (turno.estado === 'cancelado') {
       Swal.fire('Turno ya cancelado', '', 'info');
@@ -91,7 +147,7 @@ export class PacienteTurnosComponent implements OnInit {
 
     if (turno.estado === 'realizado') {
       if (turno.reseniaOk === true) {
-        Swal.fire(`Reseña:${turno.resenia}`, '', 'info');
+        Swal.fire(`Reseña:${turno.comentario}`, '', 'info');
         return;
       } else {
         Swal.fire({

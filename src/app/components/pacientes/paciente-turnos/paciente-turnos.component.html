@@ -88,8 +88,25 @@
                 <td (click)="manejoTurno(item)">{{ item.hora }}</td>
                 <td (click)="manejoTurno(item)">{{ item.estado }}</td>
                 <td>
-                  <button type="button" class="btn btn-primary" disabled>
+                  <button
+                    type="button"
+                    class="btn btn-primary"
+                    [disabled]="item.estado !== 'realizado'"
+                    (click)="calificarMedico(item)"
+                  >
                     Calificar
+                  </button>
+                </td>
+                <td>
+                  <button
+                    type="button"
+                    class="btn btn-primary"
+                    [disabled]="
+                      item.estado !== 'realizado' && item.comentario !== null
+                    "
+                    (click)="realizarEncuesta(item)"
+                  >
+                    Encuesta
                   </button>
                 </td>
               </tr>

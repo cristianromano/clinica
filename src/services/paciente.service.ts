@@ -34,6 +34,8 @@ export class PacienteService {
       estado: 'abierto',
       fechaPedido: new Date(),
       reseniaOk: false,
+      calificacion: null,
+      encuesta: null,
     });
   }
 
@@ -44,6 +46,12 @@ export class PacienteService {
     );
     return collectionData(q, {
       idField: 'id',
+    });
+  }
+
+  ingresarEncuesta(id: string, encuesta: string) {
+    return updateDoc(doc(this.firestore, 'turnos', id), {
+      encuesta: encuesta,
     });
   }
 
@@ -58,6 +66,12 @@ export class PacienteService {
     return updateDoc(doc(this.firestore, 'turnos', id), {
       resenia: resenia,
       reseniaOk: true,
+    });
+  }
+
+  ingresarCalificacionMedico(id: string, calificacion: string) {
+    return updateDoc(doc(this.firestore, 'turnos', id), {
+      calificacion: calificacion,
     });
   }
 }
