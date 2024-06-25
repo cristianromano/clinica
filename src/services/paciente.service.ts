@@ -27,7 +27,9 @@ export class PacienteService {
     return addDoc(collection(this.firestore, 'turnos'), {
       paciente: paciente,
       medico: medico.nombre + ' ' + medico.apellido,
+      medicoid: medico.id,
       especialidad: medico.especialidad,
+      medicoemail: medico.email,
       hora: '10:00',
       estado: 'abierto',
       fechaPedido: new Date(),

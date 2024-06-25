@@ -9,15 +9,24 @@ export class FiltroPipe implements PipeTransform {
     if (!value || !search) {
       return value;
     }
-
+    let filteredItems = [];
     let searchLower = search.toLowerCase();
 
-    let filteredItems = value.filter((item) => {
-      return (
-        item.nombre.toLowerCase().includes(searchLower) ||
-        item.especialidad.toLowerCase().includes(searchLower)
-      );
-    });
+    if (value.includes('nombre')) {
+      filteredItems = value.filter((item) => {
+        return (
+          item.nombre.toLowerCase().includes(searchLower) ||
+          item.especialidad.toLowerCase().includes(searchLower)
+        );
+      });
+    } else {
+      filteredItems = value.filter((item) => {
+        return (
+          item.paciente.toLowerCase().includes(searchLower) ||
+          item.especialidad.toLowerCase().includes(searchLower)
+        );
+      });
+    }
 
     return filteredItems;
   }

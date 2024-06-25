@@ -24,7 +24,7 @@ export class HomeComponent implements OnInit {
   ngOnInit(): void {
     if (this.auth.currentUser?.email) {
       this.firestoreS
-        .obtenerFirestoreUsuarioAdmin(this.auth.currentUser?.email)
+        .obtenerFirestoreUsuario(this.auth.currentUser?.email)
         .then((user) => {
           if (user.length > 0) {
             this.user = user[0];
@@ -40,5 +40,9 @@ export class HomeComponent implements OnInit {
 
   irTurnoPaciente() {
     this.router.navigate(['turnos/paciente']);
+  }
+
+  irPanelEspecialista() {
+    this.router.navigate(['especialistas/panel']);
   }
 }
