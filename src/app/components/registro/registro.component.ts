@@ -30,6 +30,13 @@ import Swal from 'sweetalert2';
 import { FirestoreService } from '../../../services/firestore.service';
 import { AuthService } from '../../../services/auth.service';
 import { BlockUI, BlockUIModule, NgBlockUI } from 'ng-block-ui';
+import {
+  RECAPTCHA_V3_SITE_KEY,
+  ReCaptchaV3Service,
+  RecaptchaFormsModule,
+  RecaptchaModule,
+  RecaptchaV3Module,
+} from 'ng-recaptcha';
 
 interface Opciones {
   etiqueta: string;
@@ -45,6 +52,7 @@ interface Opciones {
     NavbarComponent,
     FormsModule,
     BlockUIModule,
+    RecaptchaModule,
   ],
   templateUrl: './registro.component.html',
   styleUrl: './registro.component.css',
@@ -52,11 +60,13 @@ interface Opciones {
 export class RegistroComponent implements OnInit {
   @BlockUI() blockUI!: NgBlockUI;
   opciones: Opciones[] = [];
-
+  response?: string;
   storage: Storage = inject(Storage);
   firestore: Firestore = inject(Firestore);
   auth: Auth = inject(Auth);
   storageUpload = getStorage();
+  token = '';
+  recaptchaV3Service = inject(ReCaptchaV3Service);
 
   savedFileNames: any = [];
   tipoUsuario: string = 'Paciente';
@@ -119,6 +129,10 @@ export class RegistroComponent implements OnInit {
         });
       }
     );
+  }
+
+  executeReCaptchaV3(token: any) {
+    this.token = token;
   }
 
   async submitForm() {

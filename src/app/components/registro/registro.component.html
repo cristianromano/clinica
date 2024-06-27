@@ -4,7 +4,7 @@
       class="container-fluid d-flex justify-content-evenly align-items-center"
     >
       <div class="card p-4 shadow mt-3" style="width: 30rem">
-        <div class="form-check form-switch me-5">
+        <!-- <div class="form-check form-switch me-5">
           <div
             class="alert alert-danger d-flex flex-column justify-content-center align-items-center"
             role="alert"
@@ -20,7 +20,7 @@
               style="height: 30px; width: 50px"
             />
           </div>
-        </div>
+        </div> -->
         <h2 class="text-center mb-4 mt-1">Formulario de {{ tipoUsuario }}</h2>
         <form [formGroup]="formRegistro" (ngSubmit)="submitForm()">
           <div class="mb-3">
@@ -138,15 +138,22 @@
               formControlName="password"
             />
           </div>
-
+          <re-captcha
+            class="d-flex justify-content-center align-items-center mb-3"
+            (resolved)="executeReCaptchaV3($event)"
+            siteKey="6LdpHxIpAAAAAH-zYajIe3KgGwpte23vuDHQixJK"
+          ></re-captcha>
           <div class="d-flex justify-content-center align-items-center">
             <button
               type="submit"
               class="btn btn-primary"
-              [disabled]="!formRegistro?.valid || !savedFileNames.length"
+              [disabled]="
+                !formRegistro?.valid || !savedFileNames.length || !token
+              "
             >
               Guardar datos
             </button>
+
             <button
               type="button"
               class="btn btn-success ms-3"
