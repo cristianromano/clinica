@@ -30,8 +30,12 @@ import { EspecialistaService } from '../../../../services/especialista.service';
 export class PacienteTurnosComponent implements OnInit {
   p = 1;
   ptwo = 1;
+  p3 = 1;
   arrProfesionales: any = [];
   arrTurnos: any = [];
+  arrPacientes: any = [];
+  usuarioElegidoEmail: string = '';
+  user: any = [];
   constructor(
     private firestoreS: FirestoreService,
     private filtro: FiltroPipe,
@@ -49,6 +53,21 @@ export class PacienteTurnosComponent implements OnInit {
       });
     });
 
+    this.firestoreS
+      .obtenerFirestoreUsuario(this.authS.getUser()?.email!)
+      .then((user) => {
+        if (user.length > 0) {
+          this.user = user[0];
+        }
+      });
+
+    this.firestoreS.obtenerFirestoreTodosPacientes().subscribe((data) => {
+      this.arrPacientes = [];
+      data.forEach((element: any) => {
+        this.arrPacientes.push(element);
+      });
+    });
+
     console.log(this.authS.getUser()?.email);
     this.pacienteS
       .obtenerTurnosPorPaciente(this.authS.getUser()?.email!)
@@ -61,10 +80,29 @@ export class PacienteTurnosComponent implements OnInit {
       });
   }
 
+  elegirUsuario(user: any) {
+    Swal.fire(`Usuario elegido:${user.email}`, '', 'success');
+    this.usuarioElegidoEmail = user.email;
+  }
   solicitarTurno(medico: any) {
+    // Obtener la fecha de hoy
+    let today = new Date();
+    let horariosValidos: Date[] = [];
+    // Calcular la fecha máxima permitida (15 días después de hoy)
+    let maxDate = new Date();
+    maxDate.setDate(today.getDate() + 15);
+
     let horarios: any = [];
     medico.horario.forEach((element: any) => {
-      horarios.push(new Date(element * 1000)); // Convertir el timestamp a hora);
+      horariosValidos.push(
+        new Date(element.seconds * 1000 + element.nanoseconds / 1000000)
+      ); // Convertir el timestamp a hora);
+    });
+
+    horariosValidos.forEach((fecha: any) => {
+      if (fecha >= today && fecha <= maxDate) {
+        horarios.push(fecha); // Conservar solo los horarios dentro del rango
+      }
     });
 
     let inputOptions: { [key: string]: string } = {};
@@ -107,17 +145,19 @@ export class PacienteTurnosComponent implements OnInit {
       }).then((result) => {
         let fecha = horarios[result.value];
         let fechaFinal = `${fecha.getHours()}:${fecha.getMinutes()}`;
-        debugger;
         console.log(fechaFinal);
         if (result.isConfirmed) {
           this.pacienteS.ingresarTurnoPaciente(
-            this.authS.getUser()?.email,
+            this.usuarioElegidoEmail
+              ? this.usuarioElegidoEmail
+              : this.authS.getUser()?.email,
             medico,
             fechaFinal
           );
+          this.usuarioElegidoEmail = '';
           horarios.splice(result.value, 1);
           this.especialistaS.actualizarHorario(medico.id, horarios);
-          Swal.fire(`Turno solicitado para las:${result.value}`, '', 'success');
+          Swal.fire(`Turno solicitado`, '', 'success');
         } else if (result.isDenied) {
           Swal.fire('Turno no solicitado', '', 'info');
         }
