@@ -54,4 +54,10 @@ export class EspecialistaService {
       diagnostico: comentario[1],
     });
   }
+
+  actualizarHorario(id: string, horario: Array<string>) {
+    return updateDoc(doc(this.firestore, 'profesional', id), {
+      horario: horario,
+    });
+  }
 }

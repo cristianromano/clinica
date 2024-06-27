@@ -58,6 +58,10 @@ export class EspecialistaPanelComponent implements OnInit {
     }
 
     if (turno.estado === 'realizado' || turno.reseniaOk === true) {
+      if (turno.resenia == null) {
+        Swal.fire(`No hay reseña por el momento`, '', 'info');
+        return;
+      }
       Swal.fire(`${turno.resenia}`, '', 'info');
       return;
     }

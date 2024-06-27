@@ -23,14 +23,14 @@ export class PacienteService {
     return getDocs(collection(this.firestore, 'pacientes'));
   }
 
-  ingresarTurnoPaciente(paciente: any, medico: any) {
+  ingresarTurnoPaciente(paciente: any, medico: any, horario: string) {
     return addDoc(collection(this.firestore, 'turnos'), {
       paciente: paciente,
       medico: medico.nombre + ' ' + medico.apellido,
       medicoid: medico.id,
       especialidad: medico.especialidad,
       medicoemail: medico.email,
-      hora: '10:00',
+      hora: horario,
       estado: 'abierto',
       fechaPedido: new Date(),
       reseniaOk: false,

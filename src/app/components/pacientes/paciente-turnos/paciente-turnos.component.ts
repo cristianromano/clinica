@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, input } from '@angular/core';
 import { NavbarComponent } from '../../navbar/navbar.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgxPaginationModule } from 'ngx-pagination';
@@ -9,6 +9,7 @@ import Swal from 'sweetalert2';
 import { AuthService } from '../../../../services/auth.service';
 import { PacienteService } from '../../../../services/paciente.service';
 import { ColoresturnosPipe } from '../../../../pipes/coloresturnos.pipe';
+import { EspecialistaService } from '../../../../services/especialista.service';
 
 @Component({
   selector: 'app-paciente-turnos',
@@ -35,7 +36,8 @@ export class PacienteTurnosComponent implements OnInit {
     private firestoreS: FirestoreService,
     private filtro: FiltroPipe,
     private pacienteS: PacienteService,
-    private authS: AuthService
+    private authS: AuthService,
+    private especialistaS: EspecialistaService
   ) {}
   searchEspecialista = '';
 
@@ -60,27 +62,69 @@ export class PacienteTurnosComponent implements OnInit {
   }
 
   solicitarTurno(medico: any) {
-    Swal.fire({
-      title: '¿Desea solicitar turno?',
-      input: 'radio',
-      inputOptions: {
-        10: '10',
-        11: '11',
-      },
-      showDenyButton: true,
-      confirmButtonText: `Si`,
-      denyButtonText: `No`,
-    }).then((result) => {
-      if (result.isConfirmed) {
-        this.pacienteS.ingresarTurnoPaciente(
-          this.authS.getUser()?.email,
-          medico
-        );
-        Swal.fire(`Turno solicitado para las:${result.value}`, '', 'success');
-      } else if (result.isDenied) {
-        Swal.fire('Turno no solicitado', '', 'info');
-      }
+    let horarios: any = [];
+    medico.horario.forEach((element: any) => {
+      horarios.push(new Date(element * 1000)); // Convertir el timestamp a hora);
     });
+
+    let inputOptions: { [key: string]: string } = {};
+
+    horarios.forEach((element: any, index: number) => {
+      inputOptions[
+        index.toString()
+      ] = `${element.getDate()}/${element.getMonth()} ${element.getHours()}:${element.getMinutes()}`;
+    });
+
+    // Construir el HTML para mostrar los radio buttons con sus etiquetas
+    let html = 'Horarios disponibles:<br>';
+    Object.keys(inputOptions).forEach((key) => {
+      html += `<input type="radio" id="input${key}" name="hora" value="${key}" required>
+               <label for="input${key}">${inputOptions[key]}</label><br>`;
+    });
+
+    if (horarios.length > 0) {
+      Swal.fire({
+        title: '¿Desea solicitar turno?',
+        input: 'radio',
+        html: html,
+        showDenyButton: true,
+        confirmButtonText: `Si`,
+        denyButtonText: `No`,
+        focusConfirm: false,
+        preConfirm: () => {
+          const selectedOption = (
+            document.querySelector(
+              'input[name="hora"]:checked'
+            ) as HTMLInputElement
+          )?.value;
+
+          if (!selectedOption) {
+            Swal.showValidationMessage(`Seleccione una opción`);
+          }
+
+          return selectedOption;
+        },
+      }).then((result) => {
+        let fecha = horarios[result.value];
+        let fechaFinal = `${fecha.getHours()}:${fecha.getMinutes()}`;
+        debugger;
+        console.log(fechaFinal);
+        if (result.isConfirmed) {
+          this.pacienteS.ingresarTurnoPaciente(
+            this.authS.getUser()?.email,
+            medico,
+            fechaFinal
+          );
+          horarios.splice(result.value, 1);
+          this.especialistaS.actualizarHorario(medico.id, horarios);
+          Swal.fire(`Turno solicitado para las:${result.value}`, '', 'success');
+        } else if (result.isDenied) {
+          Swal.fire('Turno no solicitado', '', 'info');
+        }
+      });
+    } else {
+      Swal.fire('No hay turnos para este especialista', '', 'error');
+    }
   }
 
   calificarMedico(turno: any) {
