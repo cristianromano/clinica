@@ -13,7 +13,14 @@ export const routes: Routes = [
       ),
   },
   {
-    path: 'registro',
+    path: 'elegirusuario',
+    loadComponent: () =>
+      import('./components/elegirusuario/elegirusuario.component').then(
+        (m) => m.ElegirusuarioComponent
+      ),
+  },
+  {
+    path: 'registro/:usuario',
     loadComponent: () =>
       import('./components/registro/registro.component').then(
         (m) => m.RegistroComponent

@@ -10,7 +10,7 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { last } from 'rxjs';
 import {
   Firestore,
@@ -69,10 +69,11 @@ export class RegistroComponent implements OnInit {
   recaptchaV3Service = inject(ReCaptchaV3Service);
 
   savedFileNames: any = [];
-  tipoUsuario: string = 'Paciente';
+  tipoUsuario: string = '';
   isChecked: boolean = false;
   router: Router = inject(Router);
   tipoForm: any;
+  datoRecibido?: string;
 
   formRegistro = new FormGroup({
     nombre: new FormControl('', [
@@ -114,8 +115,13 @@ export class RegistroComponent implements OnInit {
   constructor(
     private formBuilder: FormBuilder,
     private firestoreService: FirestoreService,
-    private authService: AuthService
-  ) {}
+    private authService: AuthService,
+    private route: ActivatedRoute
+  ) {
+    this.route.paramMap.subscribe((params) => {
+      this.tipoUsuario = params.get('usuario')!;
+    });
+  }
 
   ngOnInit(): void {
     collectionData(collection(this.firestore, 'especialidades')).subscribe(
@@ -129,6 +135,8 @@ export class RegistroComponent implements OnInit {
         });
       }
     );
+
+    this.onCheckboxChange();
   }
 
   executeReCaptchaV3(token: any) {
@@ -155,7 +163,7 @@ export class RegistroComponent implements OnInit {
     const password = this.formRegistro.get('password')?.value;
     const nombre = this.formRegistro.get('nombre')?.value;
 
-    if (this.tipoUsuario === 'Paciente') {
+    if (this.tipoUsuario === 'paciente') {
       if (email && password && nombre) {
         this.authService
           .crearUsuario(email, password, url[0], nombre)
@@ -203,6 +211,7 @@ export class RegistroComponent implements OnInit {
                   confirmButtonText: 'Aceptar',
                 });
               });
+            this.router.navigate(['/elegirusuario']);
           })
           .catch((error) => {
             this.blockUI.stop();
@@ -267,13 +276,13 @@ export class RegistroComponent implements OnInit {
     if (files) {
       const formArray = this.formRegistro.get('imagenes') as FormArray;
       for (let i = 0; i < files.length; i++) {
-        if (this.tipoUsuario === 'Paciente') {
+        if (this.tipoUsuario === 'paciente') {
           this.savedFileNames = [];
           formArray.removeAt(0);
           const file = files[i];
           this.savedFileNames.push({ name: file.name });
           formArray.push(this.formBuilder.control(file));
-        } else if (this.tipoUsuario === 'Profesional') {
+        } else if (this.tipoUsuario === 'especialista') {
           console.log(this.savedFileNames.length);
           if (this.savedFileNames.length > 1) {
             this.savedFileNames.pop();
@@ -288,16 +297,13 @@ export class RegistroComponent implements OnInit {
   }
 
   onCheckboxChange() {
-    this.formRegistro.reset();
     this.savedFileNames = [];
-    if (this.isChecked) {
-      this.tipoUsuario = 'Profesional';
+    if (this.tipoUsuario === 'especialista') {
       this.formRegistro.get('obrasocial')?.clearValidators();
       this.formRegistro.get('obrasocial')?.updateValueAndValidity();
       this.formRegistro.get('especialidad')?.addValidators(Validators.required);
       this.formRegistro.get('especialidad')?.updateValueAndValidity();
     } else {
-      this.tipoUsuario = 'Paciente';
       this.formRegistro.get('especialidad')?.clearValidators();
       this.formRegistro.get('especialidad')?.updateValueAndValidity();
       this.formRegistro.get('obrasocial')?.addValidators(Validators.required);

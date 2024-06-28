@@ -40,7 +40,7 @@ export class LoginComponent {
   });
 
   irRegistro() {
-    this.router.navigate(['/registro']);
+    this.router.navigate(['/elegirusuario']);
   }
 
   submitForm() {
@@ -130,16 +130,37 @@ export class LoginComponent {
     });
   }
 
+  loginEspecialistaDos() {
+    this.formLogin.setValue({
+      email: 'jogeg26673@kinsef.com',
+      password: 'asdasd123',
+    });
+  }
+
   loginPaciente() {
+    this.formLogin.setValue({
+      email: 'gebolis212@mposhop.com',
+      password: 'asdasd123',
+    });
+  }
+
+  loginPacienteDos() {
     this.formLogin.setValue({
       email: 'test-pootof6dt@srv1.mail-tester.com',
       password: 'asdasd123',
     });
   }
 
+  loginPacienteTres() {
+    this.formLogin.setValue({
+      email: 'pakalo2875@nolanzip.com',
+      password: 'asdasd123',
+    });
+  }
+
   loginAdmin() {
     this.formLogin.setValue({
-      email: 'cristianromano2@gmail.com',
+      email: 'admindos@admin.com',
       password: 'asdasd123',
     });
   }

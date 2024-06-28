@@ -99,13 +99,14 @@ export class FirestoreService {
     if (datos.empty) {
       let paciente =
         (await this.obtenerFirestoreUsuarioPaciente(email)).length > 0;
-      if (!paciente) {
+      if (paciente == false) {
         return this.obtenerFirestoreUsuarioAdmin(email);
+      } else {
+        return this.obtenerFirestoreUsuarioPaciente(email);
       }
     } else {
       return datos.docs.map((doc) => doc.data());
     }
-    return datos.docs.map((doc) => doc.data());
   }
 
   async obtenerFirestoreUsuarioPaciente(email: string) {

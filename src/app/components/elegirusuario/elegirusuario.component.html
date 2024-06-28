@@ -1,0 +1,37 @@
+<div
+  class="full-background d-flex flex-row justify-content-center align-items-center"
+>
+  <div class="card p-4 shadow me-3 justify-content-center align-items-center">
+    <div class="card-body mt-3">
+      <div class="d-flex flex-column justify-content-center align-items-center">
+        <h5 class="card-title">Paciente</h5>
+        <button class="btn btn-danger mt-3" (click)="elegirUsuario('paciente')">
+          <img
+            src="/assets/paciente.png"
+            class="card-img-top"
+            alt="..."
+            style="height: 150px; width: 150px"
+          />
+        </button>
+      </div>
+    </div>
+  </div>
+  <div class="card p-4 shadow me-3 justify-content-center align-items-center">
+    <div class="card-body mt-3">
+      <div class="d-flex flex-column justify-content-center align-items-center">
+        <h5 class="card-title">Especialista</h5>
+        <button
+          class="btn btn-danger mt-3"
+          (click)="elegirUsuario('especialista')"
+        >
+          <img
+            src="/assets/medico.png"
+            class="card-img-top"
+            alt="..."
+            style="height: 150px; width: 150px"
+          />
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

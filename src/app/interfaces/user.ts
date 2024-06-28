@@ -1,0 +1,11 @@
+export interface User {
+  nombre: string;
+  tipo: string;
+  email: string;
+  imagenes: string[];
+  autorizado: boolean;
+  apellido: string;
+  edad: number;
+  dni: string;
+  obrasocial: string;
+}

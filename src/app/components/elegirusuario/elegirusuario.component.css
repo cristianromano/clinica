@@ -1,0 +1,36 @@
+.full-background {
+  width: 100vw;
+  height: 100vh;
+}
+
+:host {
+  display: block; /* Ensures the :host element is block-level */
+  background-image: url("/assets/pattern.jpg");
+}
+
+.card {
+  background-color: #295a8b;
+  border: 1px solid #f8f9fa;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px 0 rgba(0, 0, 0, 0.1);
+  width: 500px;
+}
+
+.card-body {
+  border: 1px solid #000000;
+  border-radius: 10px;
+  background-color: antiquewhite;
+  width: 300px;
+}
+
+button {
+  border: none;
+  background-color: transparent;
+  outline: none;
+}
+
+button:hover {
+  cursor: pointer;
+  background-color: transparent;
+  outline: none;
+}

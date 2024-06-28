@@ -21,7 +21,10 @@
             />
           </div>
         </div> -->
-        <h2 class="text-center mb-4 mt-1">Formulario de {{ tipoUsuario }}</h2>
+        <h2 class="text-center mb-4 mt-1">
+          Formulario de
+          {{ tipoUsuario }}
+        </h2>
         <form [formGroup]="formRegistro" (ngSubmit)="submitForm()">
           <div class="mb-3">
             <label for="nombre" class="form-label">Nombre:</label>
@@ -86,7 +89,7 @@
               El DNI debe tener al menos 8 dígitos.
             </div>
           </div>
-          <div class="mb-3" *ngIf="tipoUsuario == 'Paciente'">
+          <div class="mb-3" *ngIf="tipoUsuario == 'paciente'">
             <label for="obrasocial" class="form-label">Obra social</label>
             <input
               type="text"
@@ -101,7 +104,7 @@
               la obra social debe contener texto.
             </div>
           </div>
-          <div class="mb-3" *ngIf="tipoUsuario == 'Profesional'">
+          <div class="mb-3" *ngIf="tipoUsuario == 'especialista'">
             <label for="especialidad" class="form-label">Especialidad</label>
             <select
               class="form-select"
@@ -188,7 +191,7 @@
         <form
           [formGroup]="formEspecialidad"
           class="mb-3 card p-4 shadow"
-          *ngIf="tipoUsuario === 'Profesional'"
+          *ngIf="tipoUsuario === 'especialista'"
           (ngSubmit)="agregarEspecialidad()"
         >
           <label for="especialidadextra" class="form-label"

@@ -13,15 +13,13 @@ export class BienvenidoComponent {
   constructor(private firestoreS: FirestoreService) {}
   router: Router = inject(Router);
 
-  ngOnInit(): void {
-
-  }
+  ngOnInit(): void {}
 
   irLogin() {
     this.router.navigate(['/login']);
   }
 
   irRegistro() {
-    this.router.navigate(['/registro']);
+    this.router.navigate(['/elegirusuario']);
   }
 }
