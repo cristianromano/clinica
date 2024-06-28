@@ -11,7 +11,9 @@ import {
   collectionData,
   and,
   doc,
+  docData,
 } from '@angular/fire/firestore';
+import { Observable } from 'rxjs';
 import Swal from 'sweetalert2';
 
 @Injectable({
@@ -188,5 +190,13 @@ export class FirestoreService {
     return collectionData(collection(this.firestore, 'turnos'), {
       idField: 'id',
     });
+  }
+  async obtenerUsuarioPorID(id: string) {
+    let docUser;
+    let docRef = doc(this.firestore, `administradores/${id}`);
+    docData(docRef).subscribe((doc) => {
+      docUser = doc;
+    });
+    return docUser; // Return an empty observable
   }
 }

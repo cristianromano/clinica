@@ -9,6 +9,8 @@ import {
 } from '@angular/fire/auth';
 import { FirestoreService } from './firestore.service';
 import { Firestore, collection, getDocs } from '@angular/fire/firestore';
+import { Observable } from 'rxjs';
+import { User } from '../app/interfaces/user';
 
 @Injectable({
   providedIn: 'root',
@@ -16,8 +18,27 @@ import { Firestore, collection, getDocs } from '@angular/fire/firestore';
 export class AuthService {
   auth: Auth = inject(Auth);
   firestore: Firestore = inject(Firestore);
+  user$?: Observable<User>;
+  currentUser: any;
 
-  constructor(private firestoreS: FirestoreService) {}
+  constructor(private firestoreS: FirestoreService) {
+    this.getCurrentUser();
+  }
+
+  getCurrentUser() {
+    this.auth.onAuthStateChanged((user) => {
+      if (user) {
+        this.firestoreS
+          .obtenerFirestoreUsuarioAdmin(user.email!)
+          .then((user) => {
+            console.log(user);
+            this.currentUser = user;
+          });
+      } else {
+        this.currentUser = null;
+      }
+    });
+  }
 
   logueado() {
     return this.auth.currentUser;

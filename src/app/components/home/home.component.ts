@@ -15,13 +15,13 @@ import { CommonModule } from '@angular/common';
 })
 export class HomeComponent implements OnInit {
   auth: Auth = inject(Auth);
-  user: any = [];
+  user: any;
   constructor(
     private router: Router,
-    private authS: AuthService,
+    public authS: AuthService,
     private firestoreS: FirestoreService
   ) {}
-  ngOnInit(): void {
+  async ngOnInit(): Promise<void> {
     if (this.auth.currentUser?.email) {
       this.firestoreS
         .obtenerFirestoreUsuario(this.auth.currentUser?.email)
@@ -49,5 +49,4 @@ export class HomeComponent implements OnInit {
   irTurnosAdmin() {
     this.router.navigate(['admin/turnos']);
   }
-  
 }
