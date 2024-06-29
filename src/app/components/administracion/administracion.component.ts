@@ -1,6 +1,6 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { NavbarComponent } from '../navbar/navbar.component';
-import { Firestore } from '@angular/fire/firestore';
+import { Firestore, collection, collectionData } from '@angular/fire/firestore';
 import { FirestoreService } from '../../../services/firestore.service';
 import { CommonModule } from '@angular/common';
 import {
@@ -8,6 +8,7 @@ import {
   FormBuilder,
   FormControl,
   FormGroup,
+  FormsModule,
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
@@ -21,6 +22,7 @@ import Swal from 'sweetalert2';
 import { ColoresPipe } from '../../../pipes/colores.pipe';
 import { AuthService } from '../../../services/auth.service';
 import { NgxPaginationModule } from 'ngx-pagination';
+import { BlockUI, BlockUIModule, NgBlockUI } from 'ng-block-ui';
 
 @Component({
   selector: 'app-administracion',
@@ -31,14 +33,18 @@ import { NgxPaginationModule } from 'ngx-pagination';
     ReactiveFormsModule,
     ColoresPipe,
     NgxPaginationModule,
+    FormsModule,
+    BlockUIModule,
   ],
   templateUrl: './administracion.component.html',
   styleUrl: './administracion.component.css',
 })
 export class AdministracionComponent implements OnInit {
+  @BlockUI() blockUI!: NgBlockUI;
   p: number = 1;
   pageTwo: number = 1;
   $index: any;
+  firestore: Firestore = inject(Firestore);
   constructor(
     private firestoreS: FirestoreService,
     private formBuilder: FormBuilder,
@@ -48,6 +54,9 @@ export class AdministracionComponent implements OnInit {
   arrPacientes: any = [];
   savedFileNames: any = [];
   storage: Storage = inject(Storage);
+  opciones: any = [];
+  roles: string[] = ['Paciente', 'Administrador', 'Especialista'];
+  selectedRole: string = this.roles[0];
 
   formRegistro = new FormGroup({
     nombre: new FormControl('', [
@@ -73,6 +82,11 @@ export class AdministracionComponent implements OnInit {
       Validators.required,
       Validators.pattern('[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,4}'),
     ]),
+    obrasocial: new FormControl('', [
+      Validators.required,
+      Validators.pattern('[a-zA-Z ]*'),
+    ]),
+    especialidad: new FormControl(''),
     password: new FormControl('', [Validators.required]),
     imagenes: this.formBuilder.array([]),
   });
@@ -93,14 +107,42 @@ export class AdministracionComponent implements OnInit {
         this.arrPacientes.push(paciente);
       });
     });
+
+    collectionData(collection(this.firestore, 'especialidades')).subscribe(
+      (especialidades) => {
+        this.opciones = [];
+        especialidades.forEach((especialidad) => {
+          this.opciones.push({
+            etiqueta: especialidad['especialidad'],
+            valor: especialidad['especialidad'],
+          });
+        });
+      }
+    );
   }
 
   autorizarProfesional(profesional: any) {
     this.firestoreS.autorizarProfesional(profesional);
-  
+  }
+
+  cambioRol(event: any) {
+    this.selectedRole = event.target.value;
+    this.formRegistro.reset();
+    if (this.selectedRole === 'Paciente') {
+      this.formRegistro.get('especialidad')?.clearValidators();
+      this.formRegistro.get('especialidad')?.updateValueAndValidity();
+      this.formRegistro.get('obrasocial')?.addValidators(Validators.required);
+      this.formRegistro.get('obrasocial')?.updateValueAndValidity();
+    } else if (this.selectedRole === 'Especialista') {
+      this.formRegistro.get('obrasocial')?.clearValidators();
+      this.formRegistro.get('obrasocial')?.updateValueAndValidity();
+      this.formRegistro.get('especialidad')?.addValidators(Validators.required);
+      this.formRegistro.get('especialidad')?.updateValueAndValidity();
+    }
   }
 
   async submit() {
+    this.blockUI.start('Registrando usuario...');
     const formArray = this.formRegistro.get('imagenes') as FormArray;
     let url: string | string[] = [];
     let nombre = this.formRegistro.value.nombre;
@@ -113,24 +155,67 @@ export class AdministracionComponent implements OnInit {
         await uploadBytesResumable(fileRef, control.value).then(
           async (snapshot) => {
             url.push(await getDownloadURL(snapshot.ref));
-            this.firestoreS
-              .agregarFirestoreAdministrador(this.formRegistro, url)
-              .then((res) => {
-                if (nombre && email && password) {
-                  this.authS
-                    .crearUsuarioAdmin(email, password, url[0], nombre)
-                    .then((res) => {
-                      this.formRegistro.reset();
-                      this.savedFileNames = [];
-                      Swal.fire({
-                        title: 'Registro exitoso',
-                        text: 'Se ha registrado correctamente',
-                        icon: 'success',
-                        confirmButtonText: 'Aceptar',
+            if (this.selectedRole === 'Paciente') {
+              this.firestoreS
+                .agregarFirestorePaciente(this.formRegistro, url[0])
+                .then((res) => {
+                  if (nombre && email && password) {
+                    this.authS
+                      .crearUsuario(email, password, url[0], nombre)
+                      .then((res) => {
+                        this.blockUI.stop();
+                        this.formRegistro.reset();
+                        this.savedFileNames = [];
+                        Swal.fire({
+                          title: 'Registro exitoso',
+                          text: 'Se ha registrado correctamente',
+                          icon: 'success',
+                          confirmButtonText: 'Aceptar',
+                        });
                       });
-                    });
-                }
-              });
+                  }
+                });
+            } else if (this.selectedRole === 'Especialista') {
+              this.firestoreS
+                .agregarFirestoreProfesional(this.formRegistro, url)
+                .then((res) => {
+                  if (nombre && email && password) {
+                    this.authS
+                      .crearUsuario(email, password, url[0], nombre)
+                      .then((res) => {
+                        this.blockUI.stop();
+                        this.formRegistro.reset();
+                        this.savedFileNames = [];
+                        Swal.fire({
+                          title: 'Registro exitoso',
+                          text: 'Se ha registrado correctamente',
+                          icon: 'success',
+                          confirmButtonText: 'Aceptar',
+                        });
+                      });
+                  }
+                });
+            } else {
+              this.firestoreS
+                .agregarFirestoreAdministrador(this.formRegistro, url)
+                .then((res) => {
+                  if (nombre && email && password) {
+                    this.authS
+                      .crearUsuarioAdmin(email, password, url[0], nombre)
+                      .then((res) => {
+                        this.blockUI.stop();
+                        this.formRegistro.reset();
+                        this.savedFileNames = [];
+                        Swal.fire({
+                          title: 'Registro exitoso',
+                          text: 'Se ha registrado correctamente',
+                          icon: 'success',
+                          confirmButtonText: 'Aceptar',
+                        });
+                      });
+                  }
+                });
+            }
           }
         );
       }
