@@ -15,13 +15,14 @@ import { CommonModule } from '@angular/common';
 })
 export class HomeComponent implements OnInit {
   auth: Auth = inject(Auth);
-  user: any;
+  user: any = {};
   constructor(
     private router: Router,
     public authS: AuthService,
     private firestoreS: FirestoreService
   ) {}
-  async ngOnInit(): Promise<void> {
+  ngOnInit(): void {
+    // console.log('hola' + this.user$);
     if (this.auth.currentUser?.email) {
       this.firestoreS
         .obtenerFirestoreUsuario(this.auth.currentUser?.email)
@@ -32,6 +33,10 @@ export class HomeComponent implements OnInit {
           }
         });
     }
+    // this.authS.user$.subscribe((user) => {
+    //   this.user$ = user.email;
+    //   console.log('a' + this.user$);
+    // });
   }
 
   irAdministracion() {

@@ -9,7 +9,7 @@ import {
 } from '@angular/fire/auth';
 import { FirestoreService } from './firestore.service';
 import { Firestore, collection, getDocs } from '@angular/fire/firestore';
-import { Observable } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
 import { User } from '../app/interfaces/user';
 
 @Injectable({
@@ -18,26 +18,56 @@ import { User } from '../app/interfaces/user';
 export class AuthService {
   auth: Auth = inject(Auth);
   firestore: Firestore = inject(Firestore);
-  user$?: Observable<User>;
+  private userSubject: BehaviorSubject<any> = new BehaviorSubject(null);
+  user$: Observable<any> = this.userSubject.asObservable();
   currentUser: any;
 
   constructor(private firestoreS: FirestoreService) {
-    this.getCurrentUser();
-  }
+    this.userSubject = new BehaviorSubject<User | null>(null);
+    this.user$ = this.userSubject.asObservable();
 
-  getCurrentUser() {
     this.auth.onAuthStateChanged((user) => {
       if (user) {
+        // Obtener y actualizar información adicional del usuario si es necesario
         this.firestoreS
           .obtenerFirestoreUsuarioAdmin(user.email!)
-          .then((user) => {
-            console.log(user);
-            this.currentUser = user;
+          .then((userData) => {
+            const currentUser: User = {
+              uid: user.uid,
+              email: user.email!,
+              nombre: user.displayName!,
+              tipo: '',
+              imagenes: [],
+              autorizado: false,
+              apellido: '',
+              edad: 0,
+              dni: '',
+              obrasocial: ''
+            };
+            this.userSubject.next(currentUser);
           });
       } else {
-        this.currentUser = null;
+        this.userSubject.next(null);
       }
     });
+  }
+
+  // getCurrentUser() {
+  //   this.auth.onAuthStateChanged((user) => {
+  //     if (user) {
+  //       this.firestoreS
+  //         .obtenerFirestoreUsuarioAdmin(user.email!)
+  //         .then((user) => {
+  //           this.userSubject.next(user[0]);
+  //         });
+  //     } else {
+  //       this.currentUser = null;
+  //     }
+  //   });
+  // }
+
+  getCurrentUserValue(): User | null {
+    return this.userSubject.value;
   }
 
   logueado() {
@@ -168,6 +198,8 @@ export class AuthService {
   }
 
   signOut() {
-    return this.auth.signOut();
+    return this.auth.signOut().then(() => {
+      this.userSubject.next(null);
+    });
   }
 }
