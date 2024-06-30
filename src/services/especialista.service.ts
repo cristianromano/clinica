@@ -60,4 +60,15 @@ export class EspecialistaService {
       horario: horario,
     });
   }
+
+  obtenerEspecialista(email: string) {
+    let q = query(
+      collection(this.firestore, 'profesional'),
+      where('email', '==', email)
+    );
+
+    return collectionData(q, {
+      idField: 'id',
+    });
+  }
 }

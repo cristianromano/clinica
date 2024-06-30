@@ -199,4 +199,10 @@ export class FirestoreService {
     });
     return docUser; // Return an empty observable
   }
+
+  actualizarHorasEspecialista(horas: Array<string>, id: string) {
+    updateDoc(doc(this.firestore, 'profesional', id), {
+      horario: horas,
+    });
+  }
 }
