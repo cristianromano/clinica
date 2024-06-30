@@ -66,5 +66,12 @@ export const routes: Routes = [
         (m) => m.AdminTurnosComponent
       ),
   },
+  {
+    path: 'miperfil/:usuarios',
+    loadComponent: () =>
+      import('./components/miperfil/miperfil.component').then(
+        (m) => m.MiperfilComponent
+      ),
+  },
   { path: '**', redirectTo: 'notfound' },
 ];
