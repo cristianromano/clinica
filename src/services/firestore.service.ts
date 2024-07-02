@@ -12,6 +12,7 @@ import {
   and,
   doc,
   docData,
+  Timestamp,
 } from '@angular/fire/firestore';
 import { Observable } from 'rxjs';
 import Swal from 'sweetalert2';
@@ -201,8 +202,21 @@ export class FirestoreService {
   }
 
   actualizarHorasEspecialista(horas: Array<string>, id: string) {
+    // const timestamps = horas.map((hora) => {
+    //   return Timestamp.fromDate(new Date(hora));
+    // });
+    let timestamp: any = [];
+    horas.map((hora) => {
+      const [day, month, yearAndTime] = hora.split('/');
+      const [year, time] = yearAndTime.split(' ');
+      const [hour, minute] = time.split(':');
+
+      const date = new Date(+year, +month - 1, +day, +hour, +minute);
+      timestamp.push(Timestamp.fromDate(date));
+    });
+
     updateDoc(doc(this.firestore, 'profesional', id), {
-      horario: horas,
+      horario: timestamp,
     });
   }
 }
