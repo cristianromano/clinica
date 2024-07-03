@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { DEFAULT_CURRENCY_CODE, Injectable, inject } from '@angular/core';
 import {
   Firestore,
   addDoc,
@@ -42,7 +42,8 @@ export class FirestoreService {
 
   async agregarFirestoreProfesional(data: any, url: Array<string>) {
     const dni = data.get('dni')?.value;
-
+    const especialidades = data.get('especialidad')?.value;
+    debugger;
     const registro = await this.obtenerFirestore('profesional');
     let docEncontrado = false;
 

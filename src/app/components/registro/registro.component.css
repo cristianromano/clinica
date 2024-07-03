@@ -19,3 +19,7 @@
 .ms-5 {
   margin-left: 150px !important;
 }
+
+.table {
+  cursor: pointer;
+}

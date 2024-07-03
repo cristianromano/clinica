@@ -74,6 +74,8 @@ export class RegistroComponent implements OnInit {
   router: Router = inject(Router);
   tipoForm: any;
   datoRecibido?: string;
+  selectedOption?: Opciones;
+  selectedRow?: number;
 
   formRegistro = new FormGroup({
     nombre: new FormControl('', [
@@ -103,7 +105,7 @@ export class RegistroComponent implements OnInit {
       Validators.required,
       Validators.pattern('[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,4}'),
     ]),
-    especialidad: new FormControl(''),
+    especialidad: this.formBuilder.array([]),
     password: new FormControl('', [Validators.required]),
     imagenes: this.formBuilder.array([]),
   });
@@ -141,6 +143,26 @@ export class RegistroComponent implements OnInit {
 
   executeReCaptchaV3(token: any) {
     this.token = token;
+  }
+
+  abc(opcion: string) {
+    console.log(opcion);
+  }
+  getEspecialidadesOpciones(opcion: string,index: number) {
+    this.selectedRow = index;
+
+    
+    Swal.fire({
+      title: `Especialidad ${opcion} agregada`,
+      text: opcion,
+      icon: 'success',
+      confirmButtonText: 'Aceptar',
+    });
+
+    this.formRegistro.get('especialidad') as FormArray;
+    const formArray = this.formRegistro.get('especialidad') as FormArray;
+    formArray.push(this.formBuilder.control(opcion));
+    console.log(this.formRegistro.value.especialidad);
   }
 
   async submitForm() {
@@ -195,6 +217,7 @@ export class RegistroComponent implements OnInit {
       }
     } else {
       if (email && password && nombre) {
+        console.log(this.formRegistro.value);
         this.authService
           .crearUsuario(email, password, url[0], nombre)
           .then((user) => {

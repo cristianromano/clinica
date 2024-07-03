@@ -104,18 +104,18 @@
               la obra social debe contener texto.
             </div>
           </div>
-          <div class="mb-3" *ngIf="tipoUsuario == 'especialista'">
+          <!-- <div class="mb-3" *ngIf="tipoUsuario == 'especialista'">
             <label for="especialidad" class="form-label">Especialidad</label>
             <select
-              class="form-select"
+              class="form-control"
               id="especialidad"
               formControlName="especialidad"
             >
-              <option *ngFor="let opcion of opciones" [value]="opcion.valor">
+              <option *ngFor="let opcion of opciones" [ngValue]="opcion.valor">
                 {{ opcion.etiqueta }}
               </option>
             </select>
-          </div>
+          </div> -->
 
           <div class="mb-3">
             <label for="email" class="form-label">Email</label>
@@ -168,6 +168,26 @@
         </form>
       </div>
       <div>
+        <div class="mb-3 card p-4 shadow">
+          <table class="table">
+            <thead>
+              <tr>
+                <th scope="col">#</th>
+                <th scope="col">Especialidad</th>
+              </tr>
+            </thead>
+            <tbody
+              *ngFor="let item of opciones; let i = index"
+              (click)="getEspecialidadesOpciones(item.valor, i)"
+            >
+              <tr [ngClass]="{ 'table-primary': selectedRow === i }">
+                <th scope="row">{{ i + 1 }}</th>
+
+                <td>{{ item.valor }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
         <div class="mb-3 card p-4 shadow">
           <label for="imagenes" class="form-label">Imagenes</label>
           <input
