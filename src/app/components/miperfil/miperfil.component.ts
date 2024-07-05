@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import {
   FormArray,
   FormBuilder,
@@ -14,6 +14,7 @@ import { FirestoreService } from '../../../services/firestore.service';
 import { User } from '../../interfaces/user';
 import Swal from 'sweetalert2';
 import { EspecialistaService } from '../../../services/especialista.service';
+import { Auth } from '@angular/fire/auth';
 
 @Component({
   selector: 'app-miperfil',
@@ -23,7 +24,9 @@ import { EspecialistaService } from '../../../services/especialista.service';
   styleUrl: './miperfil.component.css',
 })
 export class MiperfilComponent implements OnInit {
-  user!: User;
+  user!: any;
+  id!: string;
+  auth: Auth = inject(Auth);
   constructor(
     private route: ActivatedRoute,
     private firestoreS: FirestoreService,
@@ -32,9 +35,10 @@ export class MiperfilComponent implements OnInit {
   ) {}
   fechaSeleccionada: Date | null = null;
   options = ['08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00'];
-
+  especialidades: string[] = [];
   formRegistro = new FormGroup({
     horario: this.formBuilder.array([]),
+    especialidades: new FormControl(''),
   });
 
   ngOnInit(): void {
@@ -42,9 +46,17 @@ export class MiperfilComponent implements OnInit {
       this.firestoreS
         .obtenerFirestoreUsuario(params['usuarios'])
         .then((user) => {
-          this.user = user[0] as unknown as User;
+          this.user = user[0];
+          console.log(this.user.especialidad);
+          this.especialidades = this.user.especialidad;
         });
     });
+
+    this.especilistaS
+      .obtenerEspecialista(this.auth.currentUser?.email!)
+      .subscribe((data) => {
+        this.id = data[0].id;
+      });
   }
 
   get horarios(): FormArray {
@@ -89,18 +101,27 @@ export class MiperfilComponent implements OnInit {
     const horarioFormateado = `${fechaFormateada} ${inputValue}`;
 
     if (inputValue) {
-      this.horarios.push(new FormControl(horarioFormateado));
+      this.horarios.push(
+        new FormControl(
+          `${horarioFormateado} - ${
+            this.formRegistro.get('especialidades')?.value
+          }`
+        )
+      );
       inputElement.value = '';
       this.fechaSeleccionada = null;
     }
   }
 
-  submitForm() {
-    this.especilistaS.obtenerEspecialista(this.user.email).subscribe((data) => {
-      this.firestoreS.actualizarHorasEspecialista(
-        this.horarios.value,
-        data[0].id
-      );
-    });
+  async submitForm() {
+    // (await this.especilistaS.obtenerEspecialista(this.user.email)).subscribe(
+    //   (data) => {
+    //     id = data[0].id;
+    //   }
+    // );
+
+    this.firestoreS.actualizarHorasEspecialista(this.horarios.value, this.id);
+    this.formRegistro.reset();
+    this.horarios.clear();
   }
 }

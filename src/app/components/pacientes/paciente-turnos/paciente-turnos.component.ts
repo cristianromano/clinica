@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, input } from '@angular/core';
+import { Component, OnInit, inject, input } from '@angular/core';
 import { NavbarComponent } from '../../navbar/navbar.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgxPaginationModule } from 'ngx-pagination';
@@ -10,6 +10,8 @@ import { AuthService } from '../../../../services/auth.service';
 import { PacienteService } from '../../../../services/paciente.service';
 import { ColoresturnosPipe } from '../../../../pipes/coloresturnos.pipe';
 import { EspecialistaService } from '../../../../services/especialista.service';
+import { collection, collectionData, Firestore } from '@angular/fire/firestore';
+import { ConvertirfechaPipe } from '../../../../pipes/convertirfecha.pipe';
 
 @Component({
   selector: 'app-paciente-turnos',
@@ -24,6 +26,7 @@ import { EspecialistaService } from '../../../../services/especialista.service';
     FormsModule,
     FiltroPipe,
     ColoresturnosPipe,
+    ConvertirfechaPipe,
   ],
   providers: [FiltroPipe],
 })
@@ -36,6 +39,8 @@ export class PacienteTurnosComponent implements OnInit {
   arrPacientes: any = [];
   usuarioElegidoEmail: string = '';
   user: any = [];
+  opciones: any = [];
+  fechas: any = [];
   constructor(
     private firestoreS: FirestoreService,
     private filtro: FiltroPipe,
@@ -44,128 +49,191 @@ export class PacienteTurnosComponent implements OnInit {
     private especialistaS: EspecialistaService
   ) {}
   searchEspecialista = '';
-
+  firestore: Firestore = inject(Firestore);
+  selectedRow: number = -1;
   ngOnInit(): void {
-    this.firestoreS.obtenerFirestoreTodosProfesional().subscribe((data) => {
-      this.arrProfesionales = [];
-      data.forEach((element: any) => {
-        this.arrProfesionales.push(element);
-      });
-    });
+    // this.firestoreS.obtenerFirestoreTodosProfesional().subscribe((data) => {
+    //   this.arrProfesionales = [];
+    //   data.forEach((element: any) => {
+    //     this.arrProfesionales.push(element);
+    //   });
+    // });
 
-    this.firestoreS
-      .obtenerFirestoreUsuario(this.authS.getUser()?.email!)
-      .then((user) => {
-        if (user.length > 0) {
-          this.user = user[0];
-        }
-      });
-
-    this.firestoreS.obtenerFirestoreTodosPacientes().subscribe((data) => {
-      this.arrPacientes = [];
-      data.forEach((element: any) => {
-        this.arrPacientes.push(element);
-      });
-    });
-
-    console.log(this.authS.getUser()?.email);
     this.pacienteS
       .obtenerTurnosPorPaciente(this.authS.getUser()?.email!)
       .subscribe((data) => {
         this.arrTurnos = [];
         data.forEach((element: any) => {
-          console.log(element);
           this.arrTurnos.push(element);
         });
       });
+
+    collectionData(collection(this.firestore, 'especialidades')).subscribe(
+      (especialidades) => {
+        this.opciones = [];
+        especialidades.forEach((especialidad) => {
+          this.opciones.push({
+            etiqueta: especialidad['especialidad'],
+            valor: especialidad['especialidad'],
+          });
+        });
+      }
+    );
+  }
+
+  getEspecialidadesOpciones(opcion: string, index: number) {
+    this.firestoreS
+      .obtenerEspecialistaPorEspecialidad(opcion)
+      .subscribe((data) => {
+        this.arrProfesionales = [];
+        data.forEach((element: any) => {
+          this.arrProfesionales.push(element);
+        });
+      });
+  }
+
+  elegirMedico(medico: any) {
+    this.fechas = [];
+
+    for (let index = 0; index < 2; index++) {
+      this.fechas.push({
+        especialidad: Object.keys(medico.fechas[index])[0],
+        timestamp: Object.values(medico.fechas[index])[0],
+        medico: medico.id,
+      });
+    }
   }
 
   elegirUsuario(user: any) {
     Swal.fire(`Usuario elegido:${user.email}`, '', 'success');
     this.usuarioElegidoEmail = user.email;
   }
-  solicitarTurno(medico: any) {
-    // Obtener la fecha de hoy
-    let today = new Date();
-    let horariosValidos: Date[] = [];
-    // Calcular la fecha máxima permitida (15 días después de hoy)
-    let maxDate = new Date();
-    maxDate.setDate(today.getDate() + 15);
 
-    let horarios: any = [];
-    medico.horario.forEach((element: any) => {
-      horariosValidos.push(
-        new Date(element.seconds * 1000 + element.nanoseconds / 1000000)
-      ); // Convertir el timestamp a hora);
-    });
+  solicitarTurno(fecha: any) {
+    Swal.fire({
+      title: `¿Desea solicitar turno?`,
+      showDenyButton: true,
+      confirmButtonText: `Si`,
+      denyButtonText: `No`,
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.especialistaS.obtenerMedicoPorId(fecha.medico).then((medico) => {
+          let email = '';
+          let nombre = '';
+          let apellido = '';
+          medico.forEach((element: any) => {
+            email = element.email;
+            nombre = element.nombre;
+            apellido = element.apellido;
+          });
 
-    horariosValidos.forEach((fecha: any) => {
-      if (fecha >= today && fecha <= maxDate) {
-        horarios.push(fecha); // Conservar solo los horarios dentro del rango
+          this.pacienteS
+            .ingresarTurnoPaciente(
+              this.usuarioElegidoEmail
+                ? this.usuarioElegidoEmail
+                : this.authS.getUser()?.email,
+              fecha.especialidad,
+              fecha.medico,
+              email,
+              fecha.timestamp,
+              nombre,
+              apellido
+            )
+            .then(() => {
+              Swal.fire(`Turno solicitado`, '', 'success');
+              let horario = this.fechas.splice(this.fechas.indexOf(fecha), 1);
+
+              this.usuarioElegidoEmail = '';
+              this.especialistaS.actualizarHorario(fecha.medico, horario);
+            });
+        });
+      } else if (result.isDenied) {
+        Swal.fire('Turno no solicitado', '', 'info');
       }
     });
-
-    let inputOptions: { [key: string]: string } = {};
-
-    horarios.forEach((element: any, index: number) => {
-      inputOptions[
-        index.toString()
-      ] = `${element.getDate()}/${element.getMonth()} ${element.getHours()}:${element.getMinutes()}`;
-    });
-
-    // Construir el HTML para mostrar los radio buttons con sus etiquetas
-    let html = 'Horarios disponibles:<br>';
-    Object.keys(inputOptions).forEach((key) => {
-      html += `<input type="radio" id="input${key}" name="hora" value="${key}" required>
-               <label for="input${key}">${inputOptions[key]}</label><br>`;
-    });
-
-    if (horarios.length > 0) {
-      Swal.fire({
-        title: '¿Desea solicitar turno?',
-        input: 'radio',
-        html: html,
-        showDenyButton: true,
-        confirmButtonText: `Si`,
-        denyButtonText: `No`,
-        focusConfirm: false,
-        preConfirm: () => {
-          const selectedOption = (
-            document.querySelector(
-              'input[name="hora"]:checked'
-            ) as HTMLInputElement
-          )?.value;
-
-          if (!selectedOption) {
-            Swal.showValidationMessage(`Seleccione una opción`);
-          }
-
-          return selectedOption;
-        },
-      }).then((result) => {
-        let fecha = horarios[result.value];
-        let fechaFinal = `${fecha.getHours()}:${fecha.getMinutes()}`;
-        console.log(fechaFinal);
-        if (result.isConfirmed) {
-          this.pacienteS.ingresarTurnoPaciente(
-            this.usuarioElegidoEmail
-              ? this.usuarioElegidoEmail
-              : this.authS.getUser()?.email,
-            medico,
-            fechaFinal
-          );
-          this.usuarioElegidoEmail = '';
-          horarios.splice(result.value, 1);
-          this.especialistaS.actualizarHorario(medico.id, horarios);
-          Swal.fire(`Turno solicitado`, '', 'success');
-        } else if (result.isDenied) {
-          Swal.fire('Turno no solicitado', '', 'info');
-        }
-      });
-    } else {
-      Swal.fire('No hay turnos para este especialista', '', 'error');
-    }
   }
+  // solicitarTurno(medico: any) {
+  //   // Obtener la fecha de hoy
+  //   let today = new Date();
+  //   let horariosValidos: Date[] = [];
+  //   // Calcular la fecha máxima permitida (15 días después de hoy)
+  //   let maxDate = new Date();
+  //   maxDate.setDate(today.getDate() + 15);
+
+  //   let horarios: any = [];
+  //   medico.horario.forEach((element: any) => {
+  //     horariosValidos.push(
+  //       new Date(element.seconds * 1000 + element.nanoseconds / 1000000)
+  //     ); // Convertir el timestamp a hora);
+  //   });
+
+  //   horariosValidos.forEach((fecha: any) => {
+  //     if (fecha >= today && fecha <= maxDate) {
+  //       horarios.push(fecha); // Conservar solo los horarios dentro del rango
+  //     }
+  //   });
+
+  //   let inputOptions: { [key: string]: string } = {};
+
+  //   horarios.forEach((element: any, index: number) => {
+  //     inputOptions[
+  //       index.toString()
+  //     ] = `${element.getDate()}/${element.getMonth()} ${element.getHours()}:${element.getMinutes()}`;
+  //   });
+
+  //   // Construir el HTML para mostrar los radio buttons con sus etiquetas
+  //   let html = 'Horarios disponibles:<br>';
+  //   Object.keys(inputOptions).forEach((key) => {
+  //     html += `<input type="radio" id="input${key}" name="hora" value="${key}" required>
+  //              <label for="input${key}">${inputOptions[key]}</label><br>`;
+  //   });
+
+  //   if (horarios.length > 0) {
+  //     Swal.fire({
+  //       title: '¿Desea solicitar turno?',
+  //       input: 'radio',
+  //       html: html,
+  //       showDenyButton: true,
+  //       confirmButtonText: `Si`,
+  //       denyButtonText: `No`,
+  //       focusConfirm: false,
+  //       preConfirm: () => {
+  //         const selectedOption = (
+  //           document.querySelector(
+  //             'input[name="hora"]:checked'
+  //           ) as HTMLInputElement
+  //         )?.value;
+
+  //         if (!selectedOption) {
+  //           Swal.showValidationMessage(`Seleccione una opción`);
+  //         }
+
+  //         return selectedOption;
+  //       },
+  //     }).then((result) => {
+  //       let fecha = horarios[result.value];
+  //       let fechaFinal = `${fecha.getHours()}:${fecha.getMinutes()}`;
+  //       console.log(fechaFinal);
+  //       if (result.isConfirmed) {
+  //         this.pacienteS.ingresarTurnoPaciente(
+  //           this.usuarioElegidoEmail
+  //             ? this.usuarioElegidoEmail
+  //             : this.authS.getUser()?.email,
+  //           medico,
+  //           fechaFinal
+  //         );
+  //         this.usuarioElegidoEmail = '';
+  //         horarios.splice(result.value, 1);
+  //         this.especialistaS.actualizarHorario(medico.id, horarios);
+  //         Swal.fire(`Turno solicitado`, '', 'success');
+  //       } else if (result.isDenied) {
+  //         Swal.fire('Turno no solicitado', '', 'info');
+  //       }
+  //     });
+  //   } else {
+  //     Swal.fire('No hay turnos para este especialista', '', 'error');
+  //   }
+  // }
 
   calificarMedico(turno: any) {
     if (turno.calificacion) {

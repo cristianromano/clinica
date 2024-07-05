@@ -41,9 +41,7 @@ export class FirestoreService {
   }
 
   async agregarFirestoreProfesional(data: any, url: Array<string>) {
-    const dni = data.get('dni')?.value;
-    const especialidades = data.get('especialidad')?.value;
-    debugger;
+    const dni = data.get('dni')?.value; // Obtengo el dni del profesional a agregar a la base de datos
     const registro = await this.obtenerFirestore('profesional');
     let docEncontrado = false;
 
@@ -206,18 +204,33 @@ export class FirestoreService {
     // const timestamps = horas.map((hora) => {
     //   return Timestamp.fromDate(new Date(hora));
     // });
-    let timestamp: any = [];
-    horas.map((hora) => {
+    // let timestamp: any = [];
+    let fechaObjeto: any = [];
+
+    horas.forEach((hora) => {
+      const [horas, especialidad] = hora.split('-');
       const [day, month, yearAndTime] = hora.split('/');
       const [year, time] = yearAndTime.split(' ');
       const [hour, minute] = time.split(':');
 
       const date = new Date(+year, +month - 1, +day, +hour, +minute);
-      timestamp.push(Timestamp.fromDate(date));
+
+      fechaObjeto.push({ [especialidad]: date });
     });
 
     updateDoc(doc(this.firestore, 'profesional', id), {
-      horario: timestamp,
+      fechas: fechaObjeto,
+    });
+  }
+
+  obtenerEspecialistaPorEspecialidad(especialidad: string) {
+    let q = query(
+      collection(this.firestore, 'profesional'),
+      where('especialidad', 'array-contains', especialidad)
+    );
+
+    return collectionData(q, {
+      idField: 'id',
     });
   }
 }

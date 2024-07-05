@@ -148,10 +148,9 @@ export class RegistroComponent implements OnInit {
   abc(opcion: string) {
     console.log(opcion);
   }
-  getEspecialidadesOpciones(opcion: string,index: number) {
+  getEspecialidadesOpciones(opcion: string, index: number) {
     this.selectedRow = index;
 
-    
     Swal.fire({
       title: `Especialidad ${opcion} agregada`,
       text: opcion,

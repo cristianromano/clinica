@@ -23,6 +23,19 @@
               {{ horario }}
             </option>
           </select>
+          <label for="horario" class="form-label">Especialidades</label>
+          <select
+            class="form-select"
+            id="especialidades"
+            formControlName="especialidades"
+          >
+            <option
+              *ngFor="let especialidad of especialidades"
+              [ngValue]="especialidad"
+            >
+              {{ especialidad }}
+            </option>
+          </select>
           <button
             type="button"
             class="btn btn-primary mt-2"
@@ -30,6 +43,7 @@
           >
             Agregar horario
           </button>
+
           <div
             class="d-flex flex-column justify-content-center allign-items-center"
           >

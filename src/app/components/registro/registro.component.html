@@ -4,23 +4,6 @@
       class="container-fluid d-flex justify-content-evenly align-items-center"
     >
       <div class="card p-4 shadow mt-3" style="width: 30rem">
-        <!-- <div class="form-check form-switch me-5">
-          <div
-            class="alert alert-danger d-flex flex-column justify-content-center align-items-center"
-            role="alert"
-          >
-            Aprete para cambiar de formulario.
-            <input
-              class="form-check-input"
-              type="checkbox"
-              role="switch"
-              id="flexSwitchCheckDefault"
-              [(ngModel)]="isChecked"
-              (ngModelChange)="onCheckboxChange()"
-              style="height: 30px; width: 50px"
-            />
-          </div>
-        </div> -->
         <h2 class="text-center mb-4 mt-1">
           Formulario de
           {{ tipoUsuario }}
@@ -168,76 +151,85 @@
         </form>
       </div>
       <div>
-        <div class="mb-3 card p-4 shadow">
-          <table class="table">
-            <thead>
-              <tr>
-                <th scope="col">#</th>
-                <th scope="col">Especialidad</th>
-              </tr>
-            </thead>
-            <tbody
-              *ngFor="let item of opciones; let i = index"
-              (click)="getEspecialidadesOpciones(item.valor, i)"
-            >
-              <tr [ngClass]="{ 'table-primary': selectedRow === i }">
-                <th scope="row">{{ i + 1 }}</th>
-
-                <td>{{ item.valor }}</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-        <div class="mb-3 card p-4 shadow">
-          <label for="imagenes" class="form-label">Imagenes</label>
-          <input
-            type="file"
-            class="form-control"
-            id="imagenes"
-            multiple
-            accept="image/*"
-            formControlName="imagenes"
-            (change)="onFileChange($event)"
-          />
-          <div class="saved-files">
-            <h5>Archivos cargados:</h5>
-            <ul>
-              <li *ngFor="let fileName of savedFileNames" class="text-success">
-                {{ fileName.name }}
-              </li>
-            </ul>
-          </div>
-        </div>
-        <form
-          [formGroup]="formEspecialidad"
-          class="mb-3 card p-4 shadow"
-          *ngIf="tipoUsuario === 'especialista'"
-          (ngSubmit)="agregarEspecialidad()"
-        >
-          <label for="especialidadextra" class="form-label"
-            >Agregar especialidad</label
-          >
-          <input
-            type="text"
-            class="form-control"
-            id="especialidadextra"
-            formControlName="especialidadextra"
-          />
+        <div class="mb-3 card p-4 shadow mt-3">
           <div
-            *ngIf="formEspecialidad.get('especialidadextra')?.errors?.['pattern']"
-            style="color: red"
-            class="mt-2"
+            class="d-flex flex-row justify-content-center allign-item-center"
           >
-            Este campo solo puede contener letras y espacios.
+            <table class="table">
+              <thead>
+                <tr>
+                  <th scope="col">#</th>
+                  <th scope="col">Especialidad</th>
+                </tr>
+              </thead>
+              <tbody
+                *ngFor="let item of opciones; let i = index"
+                (click)="getEspecialidadesOpciones(item.valor, i)"
+              >
+                <tr [ngClass]="{ 'table-primary': selectedRow === i }">
+                  <th scope="row">{{ i + 1 }}</th>
+
+                  <td>{{ item.valor }}</td>
+                </tr>
+              </tbody>
+            </table>
           </div>
-          <button
-            type="submit"
-            class="btn btn-primary mt-3"
-            [disabled]="!formEspecialidad?.valid"
+        </div>
+        <div class="d-flex flex-row justify-content-center allign-item-center">
+          <div class="mb-3 card p-4 shadow me-3">
+            <label for="imagenes" class="form-label">Imagenes</label>
+            <input
+              type="file"
+              class="form-control"
+              id="imagenes"
+              multiple
+              accept="image/*"
+              formControlName="imagenes"
+              (change)="onFileChange($event)"
+            />
+            <div class="saved-files">
+              <h5>Archivos cargados:</h5>
+              <ul>
+                <li
+                  *ngFor="let fileName of savedFileNames"
+                  class="text-success"
+                >
+                  {{ fileName.name }}
+                </li>
+              </ul>
+            </div>
+          </div>
+          <form
+            [formGroup]="formEspecialidad"
+            class="mb-3 card p-4 shadow"
+            *ngIf="tipoUsuario === 'especialista'"
+            (ngSubmit)="agregarEspecialidad()"
           >
-            Agregar a lista
-          </button>
-        </form>
+            <label for="especialidadextra" class="form-label"
+              >Agregar especialidad</label
+            >
+            <input
+              type="text"
+              class="form-control"
+              id="especialidadextra"
+              formControlName="especialidadextra"
+            />
+            <div
+              *ngIf="formEspecialidad.get('especialidadextra')?.errors?.['pattern']"
+              style="color: red"
+              class="mt-2"
+            >
+              Este campo solo puede contener letras y espacios.
+            </div>
+            <button
+              type="submit"
+              class="btn btn-primary mt-3"
+              [disabled]="!formEspecialidad?.valid"
+            >
+              Agregar a lista
+            </button>
+          </form>
+        </div>
       </div>
     </div>
   </div>

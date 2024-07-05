@@ -7,6 +7,8 @@ import {
   collectionData,
   updateDoc,
   doc,
+  docData,
+  deleteDoc,
 } from '@angular/fire/firestore';
 
 @Injectable({
@@ -55,10 +57,45 @@ export class EspecialistaService {
     });
   }
 
-  actualizarHorario(id: string, horario: Array<string>) {
-    return updateDoc(doc(this.firestore, 'profesional', id), {
-      horario: horario,
+  async actualizarHorario(id: string, horario: Array<any>) {
+    let horarios: any = [];
+    horarios.push({ [horario[0].especialidad]: horario[0].timestamp });
+    let fechas: any = [];
+    let iterador = 0;
+    await this.obtenerMedicoPorId(id).then((medico) => {
+      // Asignar fechas dentro del bloque `then`
+      if (medico) {
+        medico.forEach((item: any) => {
+          item.fechas.forEach((fecha: any) => {
+            iterador++;
+            console.log(Object.keys(fecha[iterador])[0]);
+          });
+          // console.log(Object.keys(item.fechas[0])[0]);
+        });
+
+        for (let index = 0; index < medico.fechas.length; index++) {
+          if (
+            Object.keys(medico.fechas[index])[0] === horario[0].especialidad
+          ) {
+            console.log('entro al if');
+          }
+          // fechas.push(medico.fechas[index]);
+        }
+      }
     });
+
+    // for (let index = 0; index < 2; index++) {
+    //   fechas.push({
+    //     especialidad: Object.keys(medico.fechas[index])[0],
+    //     timestamp: Object.values(medico.fechas[index])[0],
+    //     medico: medico.id,
+    //   });
+    // }
+
+    // updateDoc(doc(this.firestore, 'profesional', id), {
+    //   fechas: fechas,
+    // });
+    console.log(fechas);
   }
 
   obtenerEspecialista(email: string) {
@@ -70,5 +107,23 @@ export class EspecialistaService {
     return collectionData(q, {
       idField: 'id',
     });
+  }
+
+  obtenerEspecialistaPorEspecialidad(especialidad: string) {
+    let q = query(
+      collection(this.firestore, 'profesional'),
+      where('especialidad', '==', especialidad)
+    );
+
+    return collectionData(q, {
+      idField: 'id',
+    });
+  }
+
+  async obtenerMedicoPorId(id: string) {
+    let medico: any;
+    medico = docData(doc(this.firestore, 'profesional', id));
+
+    return medico;
   }
 }
