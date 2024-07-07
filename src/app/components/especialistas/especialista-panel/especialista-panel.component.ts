@@ -163,7 +163,7 @@ export class EspecialistaPanelComponent implements OnInit {
         <input  id="input3" type="number" class="swal2-input" min="0" max="60" placeholder="Presión" required>
         <input  id="input4"type="number"  class="swal2-input" min="0" max="48" placeholder="Temperatura" required>
       
-        <input  id="input5" type="number" class="swal2-input" placeholder="Caries" min="0" max="10" required>`,
+        <input  id="input5" type="number" class="swal2-input" placeholder="Caries" min="0" max="10" >`,
 
       focusConfirm: false,
       preConfirm: () => {
@@ -181,11 +181,11 @@ export class EspecialistaPanelComponent implements OnInit {
 
         const input5 = (document.getElementById('input5') as HTMLInputElement)
           .value;
-        if (!input1 || !input2 || !input3 || !input4 || !input5) {
+        if (!input1 || !input2 || !input3 || !input4) {
           Swal.showValidationMessage(`Ingrese texto requerido`);
         }
 
-        return [input2, input1, input3, input4, !input5];
+        return [input2, input1, input3, input4, input5];
       },
     }).then((result) => {
       if (result.isConfirmed) {

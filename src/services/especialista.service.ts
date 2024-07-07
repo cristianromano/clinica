@@ -141,6 +141,10 @@ export class EspecialistaService {
     });
   }
 
+  obtenerTurnoPorId(id: string) {
+    return getDoc(doc(this.firestore, 'turnos', id));
+  }
+
   obtenerUsuarioPorEmail(email: string) {
     let q = query(
       collection(this.firestore, 'usuarios'),
@@ -151,6 +155,4 @@ export class EspecialistaService {
       idField: 'id',
     });
   }
-
-  
 }

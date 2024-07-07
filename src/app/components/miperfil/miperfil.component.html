@@ -128,6 +128,8 @@
               />
             </div>
           </th>
+          <th scope="col">Medico</th>
+          <th scope="col">Especialidad</th>
           <th scope="col">Altura</th>
           <th scope="col">Peso</th>
           <th scope="col">Presion</th>
@@ -144,6 +146,8 @@
       >
         <tr>
           <th scope="row">{{ i + 1 }}</th>
+          <td>{{ item.medico }}</td>
+          <td>{{ item.especialidad }}</td>
           <td>{{ item.historial.altura }} cms</td>
           <td>{{ item.historial.peso }} kgs</td>
           <td>{{ item.historial.presion }} mmHg</td>

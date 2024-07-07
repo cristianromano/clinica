@@ -35,6 +35,10 @@ export class BuscarMiPefilPipe implements PipeTransform {
           .includes(searchLower)
       ) {
         filteredItems.push(elemento);
+      } else if (
+        elemento.especialidad.toString().toLowerCase().includes(searchLower)
+      ) {
+        filteredItems.push(elemento);
       }
     });
 

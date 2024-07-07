@@ -113,7 +113,15 @@ export class MiperfilComponent implements OnInit, OnDestroy {
         this.pacienteS.obtenerHistorialClinico(this.email).subscribe((data) => {
           this.arrHistorial = [];
           data.forEach((element: any) => {
-            this.arrHistorial.push(element);
+            this.especilistaS
+              .obtenerTurnoPorId(element.idTurno)
+              .then((data) => {
+                this.arrHistorial.push({
+                  ...element,
+                  especialidad: data.data()?.['especialidad'],
+                  medico: data.data()?.['medico'],
+                });
+              });
           });
         });
       }
@@ -171,38 +179,54 @@ export class MiperfilComponent implements OnInit, OnDestroy {
   descargarHistorial(item: any) {
     let medico = '';
     let medicoemail = '';
+    let especialidad = '';
     this.especilistaS.obtenerMedicoPorId(item.medico).then((data) => {
       medico = data.data()?.['nombre'] + ' ' + data.data()?.['apellido'];
       medicoemail = data.data()?.['email'];
-      const doc = new jsPDF();
-      let y = 10;
-      doc.addImage('/assets/logo.png', 'PNG', 10, y, 20, 20);
-      y += 30;
-      doc.text('Fecha de emision: ' + new Date().toLocaleTimeString(), 10, y);
-      y += 10;
-      doc.text('Historial Clinico de ' + item.paciente, 10, y);
-      doc.setFont('bold');
-      doc.setFont('normal');
-      y += 10;
-      doc.text('idTurno: ' + item.idTurno, 10, y);
-      y += 10;
-      doc.text('Especialista: ' + medico, 10, y);
-      y += 10;
-      doc.text('Especialista email: ' + medicoemail, 10, y);
-      y += 10;
-      doc.text('Paciente: ' + item.paciente, 10, y);
-      y += 10;
-      doc.text('Altura: ' + item.historial.altura + ' cms', 10, y);
-      y += 10;
-      doc.text('Peso: ' + item.historial.peso + ' kgs', 10, y);
-      y += 10;
-      doc.text('Presion: ' + item.historial.presion + ' mmHg', 10, y);
-      y += 10;
-      doc.text('Temperatura: ' + item.historial.temperatura + ' °C', 10, y);
-      y += 10;
-      doc.text('Caries: ' + item.historial.caries.caries, 10, y);
+      especialidad = data.data()?.['especialidad'];
+      let caries = item.historial.caries.caries
+        ? item.historial.caries.caries
+        : 'no tiene';
 
-      doc.save(`historial_${new Date().toLocaleTimeString()}.pdf`);
+      this.especilistaS.obtenerTurnoPorId(item.idTurno).then((data) => {
+        let turno = data.data();
+
+        const doc = new jsPDF();
+        let y = 10;
+        doc.addImage('/assets/logo.png', 'PNG', 10, y, 20, 20);
+        y += 30;
+        doc.text('Fecha de emision: ' + new Date().toLocaleTimeString(), 10, y);
+        y += 10;
+        doc.text('Historial Clinico de ' + item.paciente, 10, y);
+        doc.setFont('bold');
+        doc.setFont('normal');
+        y += 10;
+        doc.text('idTurno: ' + item.idTurno, 10, y);
+        y += 10;
+        doc.text('Especialista: ' + medico, 10, y);
+        y += 10;
+        doc.text('Especialista email: ' + medicoemail, 10, y);
+        y += 10;
+        doc.text('Especialidad: ' + turno?.['especialidad'], 10, y);
+        y += 10;
+        doc.text('Comentario: ' + turno?.['comentario'], 10, y);
+        y += 10;
+        doc.text('Diagnostico: ' + turno?.['diagnostico'], 10, y);
+        y += 10;
+        doc.text('Paciente: ' + item.paciente, 10, y);
+        y += 10;
+        doc.text('Altura: ' + item.historial.altura + ' cms', 10, y);
+        y += 10;
+        doc.text('Peso: ' + item.historial.peso + ' kgs', 10, y);
+        y += 10;
+        doc.text('Presion: ' + item.historial.presion + ' mmHg', 10, y);
+        y += 10;
+        doc.text('Temperatura: ' + item.historial.temperatura + ' °C', 10, y);
+        y += 10;
+        doc.text('Caries: ' + caries, 10, y);
+
+        doc.save(`historial_${new Date().toLocaleTimeString()}.pdf`);
+      });
     });
 
     Swal.fire({
