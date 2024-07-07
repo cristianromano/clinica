@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject, input } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject, input } from '@angular/core';
 import { NavbarComponent } from '../../navbar/navbar.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgxPaginationModule } from 'ngx-pagination';
@@ -12,6 +12,7 @@ import { ColoresturnosPipe } from '../../../../pipes/coloresturnos.pipe';
 import { EspecialistaService } from '../../../../services/especialista.service';
 import { collection, collectionData, Firestore } from '@angular/fire/firestore';
 import { ConvertirfechaPipe } from '../../../../pipes/convertirfecha.pipe';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-paciente-turnos',
@@ -30,7 +31,7 @@ import { ConvertirfechaPipe } from '../../../../pipes/convertirfecha.pipe';
   ],
   providers: [FiltroPipe],
 })
-export class PacienteTurnosComponent implements OnInit {
+export class PacienteTurnosComponent implements OnInit, OnDestroy {
   p = 1;
   ptwo = 1;
   p3 = 1;
@@ -42,6 +43,8 @@ export class PacienteTurnosComponent implements OnInit {
   opciones: any = [];
   fechas: any = [];
   horarios: any = [];
+  private subscription?: Subscription[] = [];
+
   constructor(
     private firestoreS: FirestoreService,
     private filtro: FiltroPipe,
@@ -49,25 +52,26 @@ export class PacienteTurnosComponent implements OnInit {
     private authS: AuthService,
     private especialistaS: EspecialistaService
   ) {}
+
+  ngOnDestroy(): void {
+    if (this.subscription) {
+      this.subscription.forEach((sub) => sub.unsubscribe());
+    }
+  }
   searchEspecialista = '';
   firestore: Firestore = inject(Firestore);
   selectedRow: number = -1;
   ngOnInit(): void {
-    // this.firestoreS.obtenerFirestoreTodosProfesional().subscribe((data) => {
-    //   this.arrProfesionales = [];
-    //   data.forEach((element: any) => {
-    //     this.arrProfesionales.push(element);
-    //   });
-    // });
-
-    this.pacienteS
-      .obtenerTurnosPorPaciente(this.authS.getUser()?.email!)
-      .subscribe((data) => {
-        this.arrTurnos = [];
-        data.forEach((element: any) => {
-          this.arrTurnos.push(element);
-        });
-      });
+    this.subscription?.push(
+      this.pacienteS
+        .obtenerTurnosPorPaciente(this.authS.getUser()?.email!)
+        .subscribe((data) => {
+          this.arrTurnos = [];
+          data.forEach((element: any) => {
+            this.arrTurnos.push(element);
+          });
+        })
+    );
 
     collectionData(collection(this.firestore, 'especialidades')).subscribe(
       (especialidades) => {
@@ -86,17 +90,20 @@ export class PacienteTurnosComponent implements OnInit {
   }
 
   getEspecialidadesOpciones(opcion: string, index: number) {
-    this.firestoreS
-      .obtenerEspecialistaPorEspecialidad(opcion)
-      .subscribe((data) => {
-        this.arrProfesionales = [];
-        data.forEach((element: any) => {
-          this.arrProfesionales.push({ opcion, ...element });
-        });
-        if (this.arrProfesionales.length === 0) {
-          Swal.fire('No hay profesionales disponibles', '', 'info');
-        }
-      });
+    this.subscription?.push(
+      this.firestoreS
+        .obtenerEspecialistaPorEspecialidad(opcion)
+        .subscribe((data) => {
+          this.arrProfesionales = [];
+          data.forEach((element: any) => {
+            this.arrProfesionales.push({ opcion, ...element });
+          });
+          if (this.arrProfesionales.length === 0) {
+            Swal.fire('No hay profesionales disponibles', '', 'info');
+          }
+        })
+    );
+
     this.fechas = [];
     this.horarios = [];
   }
@@ -106,13 +113,28 @@ export class PacienteTurnosComponent implements OnInit {
     this.horarios = [];
     for (let index = 0; index < medico.fechas.length; index++) {
       if (medico.opcion === Object.keys(medico.fechas[index])[0]) {
-        this.fechas.push({
-          especialidad: Object.keys(medico.fechas[index])[0],
-          timestamp: Object.values(medico.fechas[index])[0],
+        let especialidad = Object.keys(medico.fechas[index])[0];
+        let timestamp = Object.values(medico.fechas[index])[0];
+        let medicoId = medico.id;
+        let fecha = new Date(
+          (timestamp as any).seconds * 1000
+        ).toLocaleDateString();
+
+        if (!this.horarios[fecha]) {
+          this.horarios[fecha] = [];
+        }
+
+        this.horarios[fecha].push({
+          especialidad: especialidad,
+          timestamp: timestamp,
           medico: medico.id,
         });
       }
     }
+    this.fechas = Object.keys(this.horarios).map((fecha) => ({
+      fecha: fecha,
+      horarios: this.horarios[fecha],
+    }));
 
     if (this.fechas.length === 0) {
       Swal.fire('No hay turnos disponibles', '', 'info');
@@ -126,7 +148,9 @@ export class PacienteTurnosComponent implements OnInit {
 
   elegirHorario(fecha: any) {
     this.horarios = [];
-    this.horarios.push(fecha);
+
+    this.horarios.push(fecha.horarios);
+    console.log(this.horarios);
   }
 
   solicitarTurno(fecha: any) {

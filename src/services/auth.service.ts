@@ -18,12 +18,11 @@ import { User } from '../app/interfaces/user';
 export class AuthService {
   auth: Auth = inject(Auth);
   firestore: Firestore = inject(Firestore);
-  private userSubject: BehaviorSubject<any> = new BehaviorSubject(null);
+  public userSubject: BehaviorSubject<any> = new BehaviorSubject(null);
   user$: Observable<any> = this.userSubject.asObservable();
   currentUser: any;
 
   constructor(private firestoreS: FirestoreService) {
-    this.userSubject = new BehaviorSubject<User | null>(null);
     this.user$ = this.userSubject.asObservable();
 
     this.auth.onAuthStateChanged((user) => {
@@ -42,7 +41,7 @@ export class AuthService {
               apellido: '',
               edad: 0,
               dni: '',
-              obrasocial: ''
+              obrasocial: '',
             };
             this.userSubject.next(currentUser);
           });
@@ -51,20 +50,6 @@ export class AuthService {
       }
     });
   }
-
-  // getCurrentUser() {
-  //   this.auth.onAuthStateChanged((user) => {
-  //     if (user) {
-  //       this.firestoreS
-  //         .obtenerFirestoreUsuarioAdmin(user.email!)
-  //         .then((user) => {
-  //           this.userSubject.next(user[0]);
-  //         });
-  //     } else {
-  //       this.currentUser = null;
-  //     }
-  //   });
-  // }
 
   getCurrentUserValue(): User | null {
     return this.userSubject.value;

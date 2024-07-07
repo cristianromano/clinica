@@ -1,5 +1,5 @@
 <nav class="navbar navbar-expand-lg bg-body-tertiary">
-  <div class="container-fluid">
+  <div *ngIf="this.userPadre" class="container-fluid">
     <a class="navbar-brand" routerLink="/home">Clinica</a>
     <button
       class="navbar-toggler"
@@ -44,6 +44,16 @@
               Mi perfil
             </button>
           </li>
+          <li *ngIf="this.userPadre.tipo === 'profesional'">
+            <button
+              class="dropdown-item desloguear"
+              type="button"
+              (click)="irMisPaciente()"
+            >
+              Mis Pacientes
+            </button>
+          </li>
+
           <li>
             <button
               class="dropdown-item desloguear"

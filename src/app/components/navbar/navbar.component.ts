@@ -1,13 +1,15 @@
-import { Component, OnDestroy, OnInit, inject } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit, inject } from '@angular/core';
 import { Auth } from '@angular/fire/auth';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
-import { Subscription } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
 import { AuthService } from '../../../services/auth.service';
+import { CommonModule } from '@angular/common';
+import { BrowserModule } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-navbar',
   standalone: true,
-  imports: [RouterLink, RouterLinkActive],
+  imports: [RouterLink, RouterLinkActive, CommonModule],
   templateUrl: './navbar.component.html',
   styleUrl: './navbar.component.css',
 })
@@ -17,6 +19,8 @@ export class NavbarComponent implements OnInit {
   foto?: any;
   router: Router = inject(Router);
   user: any;
+  userPadre?: any;
+
   constructor(private route: Router, private authS: AuthService) {}
 
   ngOnInit(): void {
@@ -25,6 +29,10 @@ export class NavbarComponent implements OnInit {
       this.nombre = this.user.email;
       this.foto = this.user.photoURL;
     }
+    this.authS.user$.subscribe((user) => {
+      this.userPadre = user;
+      console.log(this.userPadre);
+    });
   }
 
   irBio() {
@@ -39,4 +47,6 @@ export class NavbarComponent implements OnInit {
   irPefil() {
     this.router.navigate(['miperfil', `${this.user.email}`]);
   }
+
+  irMisPaciente() {}
 }
