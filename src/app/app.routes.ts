@@ -73,5 +73,12 @@ export const routes: Routes = [
         (m) => m.MiperfilComponent
       ),
   },
+  {
+    path: 'mispacientes',
+    loadComponent: () =>
+      import('./components/mispacientes/mispacientes.component').then(
+        (m) => m.MispacientesComponent
+      ),
+  },
   { path: '**', redirectTo: 'notfound' },
 ];

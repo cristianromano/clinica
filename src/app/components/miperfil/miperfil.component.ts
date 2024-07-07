@@ -16,6 +16,9 @@ import Swal from 'sweetalert2';
 import { EspecialistaService } from '../../../services/especialista.service';
 import { Auth } from '@angular/fire/auth';
 import { BuscarMiPefilPipe } from '../../../pipes/buscar-mi-pefil.pipe';
+import { AuthService } from '../../../services/auth.service';
+import { PacienteService } from '../../../services/paciente.service';
+import { jsPDF } from 'jspdf';
 
 interface Fechas {
   fecha: string;
@@ -50,11 +53,16 @@ export class MiperfilComponent implements OnInit, OnDestroy {
   arrHistorial: any = [];
   searchAll = '';
   arrTurnosMedico: Fechas[] = [];
+  tipo = '';
+  email = '';
+  nombre = '';
   constructor(
     private route: ActivatedRoute,
     private firestoreS: FirestoreService,
     private formBuilder: FormBuilder,
-    private especilistaS: EspecialistaService
+    private especilistaS: EspecialistaService,
+    private authS: AuthService,
+    private pacienteS: PacienteService
   ) {}
 
   ngOnDestroy(): void {}
@@ -69,31 +77,46 @@ export class MiperfilComponent implements OnInit, OnDestroy {
   });
 
   ngOnInit(): void {
+    this.authS.user$.subscribe((user) => {
+      this.tipo = user.tipo;
+      this.email = user.email;
+      this.nombre = user.nombre;
+    });
     this.route.params.subscribe((params) => {
-      this.firestoreS
-        .obtenerFirestoreUsuario(params['usuarios'])
-        .then((user) => {
-          this.user = user[0];
-          this.perfil = this.user.tipo;
-          this.especialidades = this.user.especialidad;
-        })
-        .then(() => {
-          if (this.user.tipo === 'profesional') {
-            this.especilistaS
-              .obtenerEspecialista(this.user.email)
-              .subscribe((data) => {
-                this.id = data[0].id;
-                this.especilistaS
-                  .obtenerHistorialClinico(data[0].id)
-                  .subscribe((historial) => {
-                    this.arrHistorial = [];
-                    historial.forEach((element: any) => {
-                      this.arrHistorial.push(element);
+      console.log(params['usuarios']);
+      if (this.tipo === 'profesional') {
+        this.firestoreS
+          .obtenerFirestoreUsuario(params['usuarios'])
+          .then((user) => {
+            this.user = user[0];
+            this.perfil = this.user.tipo;
+            this.especialidades = this.user.especialidad;
+          })
+          .then(() => {
+            if (this.user.tipo === 'profesional') {
+              this.especilistaS
+                .obtenerEspecialista(this.user.email)
+                .subscribe((data) => {
+                  this.id = data[0].id;
+                  this.especilistaS
+                    .obtenerHistorialClinico(data[0].id)
+                    .subscribe((historial) => {
+                      this.arrHistorial = [];
+                      historial.forEach((element: any) => {
+                        this.arrHistorial.push(element);
+                      });
                     });
-                  });
-              });
-          }
+                });
+            }
+          });
+      } else if (this.tipo === 'paciente') {
+        this.pacienteS.obtenerHistorialClinico(this.email).subscribe((data) => {
+          this.arrHistorial = [];
+          data.forEach((element: any) => {
+            this.arrHistorial.push(element);
+          });
         });
+      }
     });
   }
 
@@ -143,6 +166,51 @@ export class MiperfilComponent implements OnInit, OnDestroy {
       );
       return;
     }
+  }
+
+  descargarHistorial(item: any) {
+    let medico = '';
+    let medicoemail = '';
+    this.especilistaS.obtenerMedicoPorId(item.medico).then((data) => {
+      medico = data.data()?.['nombre'] + ' ' + data.data()?.['apellido'];
+      medicoemail = data.data()?.['email'];
+      const doc = new jsPDF();
+      let y = 10;
+      doc.addImage('/assets/logo.png', 'PNG', 10, y, 20, 20);
+      y += 30;
+      doc.text('Fecha de emision: ' + new Date().toLocaleTimeString(), 10, y);
+      y += 10;
+      doc.text('Historial Clinico de ' + item.paciente, 10, y);
+      doc.setFont('bold');
+      doc.setFont('normal');
+      y += 10;
+      doc.text('idTurno: ' + item.idTurno, 10, y);
+      y += 10;
+      doc.text('Especialista: ' + medico, 10, y);
+      y += 10;
+      doc.text('Especialista email: ' + medicoemail, 10, y);
+      y += 10;
+      doc.text('Paciente: ' + item.paciente, 10, y);
+      y += 10;
+      doc.text('Altura: ' + item.historial.altura + ' cms', 10, y);
+      y += 10;
+      doc.text('Peso: ' + item.historial.peso + ' kgs', 10, y);
+      y += 10;
+      doc.text('Presion: ' + item.historial.presion + ' mmHg', 10, y);
+      y += 10;
+      doc.text('Temperatura: ' + item.historial.temperatura + ' °C', 10, y);
+      y += 10;
+      doc.text('Caries: ' + item.historial.caries.caries, 10, y);
+
+      doc.save(`historial_${new Date().toLocaleTimeString()}.pdf`);
+    });
+
+    Swal.fire({
+      icon: 'success',
+      title: 'Se descargo el historial correctamente',
+      showConfirmButton: false,
+      timer: 1500,
+    });
   }
 
   async submitForm() {

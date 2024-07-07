@@ -7,7 +7,7 @@
       *ngIf="perfil === 'profesional'"
     >
       <h2 class="text-center mb-4 mt-1">
-        Bienvenido/a {{ user.nombre | titlecase }}!
+        Bienvenido/a {{ nombre | titlecase }}!
       </h2>
       <div class="d-flex flex-column justify-content-center align-items-center">
         <form [formGroup]="formRegistro" (ngSubmit)="submitForm()">
@@ -59,7 +59,11 @@
       </div>
     </div>
 
-    <table class="table mt-3 ms-3" style="width: 770px">
+    <table
+      *ngIf="perfil === 'profesional'"
+      class="table mt-3 ms-3"
+      style="width: 770px"
+    >
       <thead>
         <tr>
           <th scope="col">
@@ -94,6 +98,66 @@
           <td>{{ item.historial.presion }} mmHg</td>
           <td>{{ item.historial.temperatura }} °C</td>
           <td>{{ item.historial.caries.caries }}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div
+      *ngIf="this.tipo === 'paciente'"
+      style="width: 30rem"
+      class="card p-4 shadow mt-3"
+    >
+      <h2 class="text-center mb-4 mt-1">
+        Bienvenido/a {{ nombre | titlecase }}!
+      </h2>
+    </div>
+    <table
+      *ngIf="this.tipo === 'paciente'"
+      class="table mt-3 ms-3"
+      style="width: 770px"
+    >
+      <thead>
+        <tr>
+          <th scope="col">
+            <div class="mt-1 mb-1">
+              <input
+                type="text"
+                class="form-control"
+                placeholder="Buscar"
+                [(ngModel)]="searchAll"
+              />
+            </div>
+          </th>
+          <th scope="col">Altura</th>
+          <th scope="col">Peso</th>
+          <th scope="col">Presion</th>
+          <th scope="col">Temperatura</th>
+          <th scope="col">Caries</th>
+          <th scope="col">Historial</th>
+        </tr>
+      </thead>
+      <tbody
+        *ngFor="
+          let item of arrHistorial | buscarMiPefil : searchAll;
+          let i = index
+        "
+      >
+        <tr>
+          <th scope="row">{{ i + 1 }}</th>
+          <td>{{ item.historial.altura }} cms</td>
+          <td>{{ item.historial.peso }} kgs</td>
+          <td>{{ item.historial.presion }} mmHg</td>
+          <td>{{ item.historial.temperatura }} °C</td>
+          <td>{{ item.historial.caries.caries }}</td>
+          <td>
+            <button
+              type="button"
+              class="btn btn-primary"
+              (click)="descargarHistorial(item)"
+            >
+              Descargar
+            </button>
+          </td>
         </tr>
       </tbody>
     </table>

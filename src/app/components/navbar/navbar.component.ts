@@ -48,5 +48,8 @@ export class NavbarComponent implements OnInit {
     this.router.navigate(['miperfil', `${this.user.email}`]);
   }
 
-  irMisPaciente() {}
+  irMisPaciente() {
+    this.router.navigate(['mispacientes']);
+  }
+
 }

@@ -58,6 +58,20 @@ export class PacienteService {
     });
   }
 
+  async obtenerFirestoreUsuarioPaciente(email: string) {
+    const querySnapshot: any = query(
+      collection(this.firestore, 'pacientes'),
+      where('email', '==', email)
+    );
+
+    const datos = await getDocs(querySnapshot);
+    if (datos.empty) {
+      return [];
+    }
+
+    return datos.docs.map((doc) => doc.data());
+  }
+
   ingresarEncuesta(id: string, encuesta: string) {
     return updateDoc(doc(this.firestore, 'turnos', id), {
       encuesta: encuesta,
@@ -81,6 +95,17 @@ export class PacienteService {
   ingresarCalificacionMedico(id: string, calificacion: string) {
     return updateDoc(doc(this.firestore, 'turnos', id), {
       calificacion: calificacion,
+    });
+  }
+
+  obtenerHistorialClinico(email: string) {
+    let q = query(
+      collection(this.firestore, 'historial'),
+      where('paciente', '==', email)
+    );
+
+    return collectionData(q, {
+      idField: 'id',
     });
   }
 }
