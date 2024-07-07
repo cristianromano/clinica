@@ -1,64 +1,101 @@
 <div class="full-background">
   <app-navbar></app-navbar>
-  <div class="container-fluid d-flex justify-content-evenly align-items-center">
-    <div class="card p-4 shadow mt-3" style="width: 30rem">
+  <div class="container-fluid d-flex justify-content-start align-items-start">
+    <div
+      style="width: 30rem"
+      class="card p-4 shadow mt-3"
+      *ngIf="perfil === 'profesional'"
+    >
       <h2 class="text-center mb-4 mt-1">
         Bienvenido/a {{ user.nombre | titlecase }}!
       </h2>
-      <form [formGroup]="formRegistro" (ngSubmit)="submitForm()">
-        <div class="mb-3">
-          <label for="fecha">Fecha</label>
-          <input
-            type="date"
-            class="form-control"
-            id="fecha"
-            formControlName="fecha"
-            min="{{ minDate() }}"
-            max="{{ maxDate() }}"
-            (change)="obtenerFechaSeleccionada($event)"
-          />
-          <label for="horario" class="form-label">Horario</label>
-          <select class="form-select" id="horario" formControlName="horario">
-            <option *ngFor="let horario of options" [value]="horario">
-              {{ horario }}
-            </option>
-          </select>
-          <label for="horario" class="form-label">Especialidades</label>
-          <select
-            class="form-select"
-            id="especialidades"
-            formControlName="especialidades"
-          >
-            <option
-              *ngFor="let especialidad of especialidades"
-              [ngValue]="especialidad"
+      <div class="d-flex flex-column justify-content-center align-items-center">
+        <form [formGroup]="formRegistro" (ngSubmit)="submitForm()">
+          <div class="mb-3">
+            <h3>Elige dia y hora para todo el mes</h3>
+            <label for="dia">Dia</label>
+            <select
+              class="form-select"
+              name="dias"
+              id="dias"
+              formControlName="dias"
             >
-              {{ especialidad }}
-            </option>
-          </select>
-          <button
-            type="button"
-            class="btn btn-primary mt-2"
-            (click)="agregarHorario()"
-          >
-            Agregar horario
-          </button>
+              <option *ngFor="let dia of dias" [ngValue]="dia">
+                {{ dia }}
+              </option>
+            </select>
+            <label for="fecha">Horario</label>
+            <input
+              type="time"
+              class="form-control"
+              id="horario"
+              min="08:00"
+              max="18:00"
+              formControlName="horario"
+            />
 
-          <div
-            class="d-flex flex-column justify-content-center allign-items-center"
-          >
-            <div class="mt-5">
-              <label for="horariosSeleccionados">Horarios Seleccionados</label>
-              <ul>
-                <li *ngFor="let horario of horarios.controls">
-                  {{ horario.value }}
-                </li>
-              </ul>
-            </div>
-            <button type="submit" class="btn btn-success mt-3">Guardar</button>
+            <label for="horario" class="form-label">Especialidades</label>
+            <select
+              class="form-select"
+              id="especialidades"
+              formControlName="especialidades"
+            >
+              <option
+                *ngFor="let especialidad of especialidades"
+                [ngValue]="especialidad"
+              >
+                {{ especialidad }}
+              </option>
+            </select>
+            <button
+              type="button"
+              class="btn btn-primary mt-2"
+              (click)="agregarFecha()"
+            >
+              Agregar horario
+            </button>
           </div>
-        </div>
-      </form>
+        </form>
+      </div>
     </div>
+
+    <table class="table mt-3 ms-3" style="width: 770px">
+      <thead>
+        <tr>
+          <th scope="col">
+            <div class="mt-1 mb-1">
+              <input
+                type="text"
+                class="form-control"
+                placeholder="Buscar"
+                [(ngModel)]="searchAll"
+              />
+            </div>
+          </th>
+          <th scope="col">Paciente</th>
+          <th scope="col">Altura</th>
+          <th scope="col">Peso</th>
+          <th scope="col">Presion</th>
+          <th scope="col">Temperatura</th>
+          <th scope="col">Caries</th>
+        </tr>
+      </thead>
+      <tbody
+        *ngFor="
+          let item of arrHistorial | buscarMiPefil : searchAll;
+          let i = index
+        "
+      >
+        <tr>
+          <th scope="row">{{ i + 1 }}</th>
+          <td>{{ item.paciente }}</td>
+          <td>{{ item.historial.altura }} cms</td>
+          <td>{{ item.historial.peso }} kgs</td>
+          <td>{{ item.historial.presion }} mmHg</td>
+          <td>{{ item.historial.temperatura }} °C</td>
+          <td>{{ item.historial.caries.caries }}</td>
+        </tr>
+      </tbody>
+    </table>
   </div>
 </div>

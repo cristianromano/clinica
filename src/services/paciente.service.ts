@@ -44,6 +44,7 @@ export class PacienteService {
       reseniaOk: false,
       calificacion: null,
       encuesta: null,
+      historial: false,
     });
   }
 

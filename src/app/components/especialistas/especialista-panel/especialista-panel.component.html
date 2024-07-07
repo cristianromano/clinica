@@ -23,6 +23,7 @@
             <th scope="col">Especialidad</th>
             <th scope="col">Hora</th>
             <th scope="col">Estado</th>
+            <th scope="col">Historial Clinico</th>
           </tr>
         </thead>
         <tbody
@@ -33,14 +34,26 @@
                 : { itemsPerPage: 5, currentPage: p, id: 'profesionales' };
             let i = index
           "
-          (click)="gestionarTurno(item)"
         >
           <tr [ngClass]="item.estado | coloresturnos">
             <th scope="row">{{ i + 1 }}</th>
-            <td>{{ item.paciente }}</td>
-            <td>{{ item.especialidad }}</td>
-            <td>{{ item.hora }}</td>
-            <td>{{ item.estado }}</td>
+            <td (click)="gestionarTurno(item)">{{ item.paciente }}</td>
+            <td (click)="gestionarTurno(item)">{{ item.especialidad }}</td>
+            <td (click)="gestionarTurno(item)">
+              {{ item.hora | convertirfecha | date : "shortTime" }}
+            </td>
+            <td (click)="gestionarTurno(item)">{{ item.estado }}</td>
+            <td>
+              <button
+                class="btn btn-primary"
+                [disabled]="
+                  item.estado !== 'realizado' || item.historial !== false
+                "
+                (click)="agregarHistorialClinico(item)"
+              >
+                Agregar
+              </button>
+            </td>
           </tr>
         </tbody>
       </table>

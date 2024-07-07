@@ -13,6 +13,7 @@ import {
   doc,
   docData,
   Timestamp,
+  arrayUnion,
 } from '@angular/fire/firestore';
 import { Observable } from 'rxjs';
 import Swal from 'sweetalert2';
@@ -200,29 +201,63 @@ export class FirestoreService {
     return docUser; // Return an empty observable
   }
 
-  actualizarHorasEspecialista(horas: Array<string>, id: string) {
-    // const timestamps = horas.map((hora) => {
-    //   return Timestamp.fromDate(new Date(hora));
-    // });
-    // let timestamp: any = [];
+  actualizarHorasEspecialista(
+    dia: string,
+    hora: string,
+    minutos: string,
+    especialidad: string,
+    id: string
+  ) {
     let fechaObjeto: any = [];
+    let diaSemana: number = 0;
+    switch (dia) {
+      case 'Domingo':
+        diaSemana = 0;
+        break;
+      case 'Lunes':
+        diaSemana = 1;
+        break;
+      case 'Martes':
+        diaSemana = 2;
+        break;
+      case 'Miercoles':
+        diaSemana = 3;
+        break;
+      case 'Jueves':
+        diaSemana = 4;
+        break;
+      case 'Viernes':
+        diaSemana = 5;
+        break;
+      case 'Sabado':
+        diaSemana = 6;
+        break;
+    }
 
-    horas.forEach((hora) => {
-      const [horas, especialidad] = hora.split('-');
-      const [day, month, yearAndTime] = hora.split('/');
-      const [year, time] = yearAndTime.split(' ');
-      const [hour, minute] = time.split(':');
+    const currentDate = new Date();
+    const currentYear = currentDate.getFullYear();
+    const currentMonth = currentDate.getMonth(); // 0-indexed
+    const firstDay = new Date(currentYear, currentMonth, 1);
+    const lastDay = new Date(currentYear, currentMonth + 1, 0);
 
-      const date = new Date(+year, +month - 1, +day, +hour, +minute);
+    for (let day = firstDay.getDate(); day <= lastDay.getDate(); day++) {
+      const currentDay = new Date(currentYear, currentMonth, day);
+      const dayOfWeekIndex = currentDay.getDay(); // 0-indexed
 
-      fechaObjeto.push({ [especialidad]: date });
-    });
+      // Check if the current day matches the desired day of the week
+      if (dayOfWeekIndex === diaSemana) {
+        fechaObjeto.push({
+          [especialidad]: new Date(
+            `${currentMonth + 1}/${day}/${currentYear} ${hora}:${minutos}`
+          ),
+        });
+      }
+    }
 
-    updateDoc(doc(this.firestore, 'profesional', id), {
-      fechas: fechaObjeto,
+    return updateDoc(doc(this.firestore, 'profesional', id), {
+      fechas: arrayUnion(...fechaObjeto),
     });
   }
-
   obtenerEspecialistaPorEspecialidad(especialidad: string) {
     let q = query(
       collection(this.firestore, 'profesional'),

@@ -9,6 +9,7 @@ import { FiltroPipe } from '../../../../pipes/filtro.pipe';
 import { ColoresPipe } from '../../../../pipes/colores.pipe';
 import { ColoresturnosPipe } from '../../../../pipes/coloresturnos.pipe';
 import Swal from 'sweetalert2';
+import { ConvertirfechaPipe } from '../../../../pipes/convertirfecha.pipe';
 
 @Component({
   selector: 'app-especialista-panel',
@@ -21,6 +22,7 @@ import Swal from 'sweetalert2';
     FiltroPipe,
     ReactiveFormsModule,
     ColoresturnosPipe,
+    ConvertirfechaPipe,
   ],
   templateUrl: './especialista-panel.component.html',
   styleUrl: './especialista-panel.component.css',
@@ -146,5 +148,65 @@ export class EspecialistaPanelComponent implements OnInit {
         }
       });
     }
+  }
+
+  agregarHistorialClinico(turno: any) {
+    if (turno.historial === true) {
+      Swal.fire('Historial clinico ya ingresado', '', 'info');
+      return;
+    }
+    Swal.fire({
+      showCloseButton: true,
+      title: 'Ingrese datos del paciente',
+      html: `<input id="input1" type="number" class="swal2-input" min="0" max="180" placeholder="Altura" required> 
+        <input  id="input2" type="number" class="swal2-input" placeholder="Peso" min="0" max="380" required>
+        <input  id="input3" type="number" class="swal2-input" min="0" max="60" placeholder="Presión" required>
+        <input  id="input4"type="number"  class="swal2-input" min="0" max="48" placeholder="Temperatura" required>
+      
+        <input  id="input5" type="number" class="swal2-input" placeholder="Caries" min="0" max="10" required>`,
+
+      focusConfirm: false,
+      preConfirm: () => {
+        const input1 = (document.getElementById('input1') as HTMLInputElement)
+          .value;
+
+        const input2 = (document.getElementById('input2') as HTMLInputElement)
+          .value;
+
+        const input3 = (document.getElementById('input3') as HTMLInputElement)
+          .value;
+
+        const input4 = (document.getElementById('input4') as HTMLInputElement)
+          .value;
+
+        const input5 = (document.getElementById('input5') as HTMLInputElement)
+          .value;
+        if (!input1 || !input2 || !input3 || !input4 || !input5) {
+          Swal.showValidationMessage(`Ingrese texto requerido`);
+        }
+
+        return [input2, input1, input3, input4, !input5];
+      },
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.especialistaService
+          .ingresarHistoriaClinicaTurnos(turno.id)
+          .then(() =>
+            this.especialistaService
+              .ingresarHistoralClinico(
+                turno.id,
+                turno.medicoid,
+                turno.paciente,
+                result?.value!
+              )
+              .then(() => {
+                Swal.fire({
+                  title: 'Historial clinico ingresado',
+                  icon: 'success',
+                });
+              })
+          );
+      }
+    });
   }
 }

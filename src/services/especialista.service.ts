@@ -9,6 +9,8 @@ import {
   doc,
   docData,
   deleteDoc,
+  addDoc,
+  getDoc,
 } from '@angular/fire/firestore';
 
 @Injectable({
@@ -57,45 +59,22 @@ export class EspecialistaService {
     });
   }
 
-  async actualizarHorario(id: string, horario: Array<any>) {
-    let horarios: any = [];
-    horarios.push({ [horario[0].especialidad]: horario[0].timestamp });
-    let fechas: any = [];
-    let iterador = 0;
-    await this.obtenerMedicoPorId(id).then((medico) => {
-      // Asignar fechas dentro del bloque `then`
-      if (medico) {
-        medico.forEach((item: any) => {
-          item.fechas.forEach((fecha: any) => {
-            iterador++;
-            console.log(Object.keys(fecha[iterador])[0]);
-          });
-          // console.log(Object.keys(item.fechas[0])[0]);
-        });
+  actualizarHorario(id: string, horario: Array<any>, fechas: Array<any>) {
+    let fechaObjeto: any = [];
+    let horarioEliminar: { [key: string]: Date };
+    horarioEliminar = {
+      [horario[0].especialidad]: horario[0].timestamp,
+    };
 
-        for (let index = 0; index < medico.fechas.length; index++) {
-          if (
-            Object.keys(medico.fechas[index])[0] === horario[0].especialidad
-          ) {
-            console.log('entro al if');
-          }
-          // fechas.push(medico.fechas[index]);
-        }
+    fechas.forEach((fecha) => {
+      if (fecha[horario[0].especialidad] !== horario[0].timestamp) {
+        fechaObjeto.push(fecha);
       }
     });
 
-    // for (let index = 0; index < 2; index++) {
-    //   fechas.push({
-    //     especialidad: Object.keys(medico.fechas[index])[0],
-    //     timestamp: Object.values(medico.fechas[index])[0],
-    //     medico: medico.id,
-    //   });
-    // }
-
-    // updateDoc(doc(this.firestore, 'profesional', id), {
-    //   fechas: fechas,
-    // });
-    console.log(fechas);
+    updateDoc(doc(this.firestore, 'profesional', id), {
+      fechas: fechaObjeto,
+    });
   }
 
   obtenerEspecialista(email: string) {
@@ -120,10 +99,56 @@ export class EspecialistaService {
     });
   }
 
-  async obtenerMedicoPorId(id: string) {
-    let medico: any;
-    medico = docData(doc(this.firestore, 'profesional', id));
+  obtenerMedicoPorId(id: string) {
+    return getDoc(doc(this.firestore, 'profesional', id));
+  }
 
-    return medico;
+  ingresarHistoriaClinicaTurnos(turnoId: string) {
+    return updateDoc(doc(this.firestore, 'turnos', turnoId), {
+      historial: true,
+    });
+  }
+
+  ingresarHistoralClinico(
+    id: string,
+    idMedico: string,
+    emailPaciente: string,
+    historial: any
+  ) {
+    console.log(historial);
+    return addDoc(collection(this.firestore, 'historial'), {
+      idTurno: id,
+      medico: idMedico,
+      paciente: emailPaciente,
+      historial: {
+        peso: historial[0],
+        altura: historial[1],
+        presion: historial[2],
+        temperatura: historial[3],
+        caries: { ['caries']: historial[4] },
+      },
+    });
+  }
+
+  obtenerHistorialClinico(id: string) {
+    let q = query(
+      collection(this.firestore, 'historial'),
+      where('medico', '==', id)
+    );
+
+    return collectionData(q, {
+      idField: 'id',
+    });
+  }
+
+  obtenerUsuarioPorEmail(email: string) {
+    let q = query(
+      collection(this.firestore, 'usuarios'),
+      where('email', '==', email)
+    );
+
+    return collectionData(q, {
+      idField: 'id',
+    });
   }
 }

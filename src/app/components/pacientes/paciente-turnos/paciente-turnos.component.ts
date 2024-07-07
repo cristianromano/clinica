@@ -41,6 +41,7 @@ export class PacienteTurnosComponent implements OnInit {
   user: any = [];
   opciones: any = [];
   fechas: any = [];
+  horarios: any = [];
   constructor(
     private firestoreS: FirestoreService,
     private filtro: FiltroPipe,
@@ -75,6 +76,9 @@ export class PacienteTurnosComponent implements OnInit {
           this.opciones.push({
             etiqueta: especialidad['especialidad'],
             valor: especialidad['especialidad'],
+            foto: especialidad['foto']
+              ? especialidad['foto']
+              : 'https://firebasestorage.googleapis.com/v0/b/clinica-b786b.appspot.com/o/imagenes%2Fsinfoto.png?alt=media&token=84d0fe71-d138-42c7-8a81-aa6fba263646',
           });
         });
       }
@@ -87,26 +91,42 @@ export class PacienteTurnosComponent implements OnInit {
       .subscribe((data) => {
         this.arrProfesionales = [];
         data.forEach((element: any) => {
-          this.arrProfesionales.push(element);
+          this.arrProfesionales.push({ opcion, ...element });
         });
+        if (this.arrProfesionales.length === 0) {
+          Swal.fire('No hay profesionales disponibles', '', 'info');
+        }
       });
+    this.fechas = [];
+    this.horarios = [];
   }
 
   elegirMedico(medico: any) {
     this.fechas = [];
+    this.horarios = [];
+    for (let index = 0; index < medico.fechas.length; index++) {
+      if (medico.opcion === Object.keys(medico.fechas[index])[0]) {
+        this.fechas.push({
+          especialidad: Object.keys(medico.fechas[index])[0],
+          timestamp: Object.values(medico.fechas[index])[0],
+          medico: medico.id,
+        });
+      }
+    }
 
-    for (let index = 0; index < 2; index++) {
-      this.fechas.push({
-        especialidad: Object.keys(medico.fechas[index])[0],
-        timestamp: Object.values(medico.fechas[index])[0],
-        medico: medico.id,
-      });
+    if (this.fechas.length === 0) {
+      Swal.fire('No hay turnos disponibles', '', 'info');
     }
   }
 
   elegirUsuario(user: any) {
     Swal.fire(`Usuario elegido:${user.email}`, '', 'success');
     this.usuarioElegidoEmail = user.email;
+  }
+
+  elegirHorario(fecha: any) {
+    this.horarios = [];
+    this.horarios.push(fecha);
   }
 
   solicitarTurno(fecha: any) {
@@ -121,11 +141,11 @@ export class PacienteTurnosComponent implements OnInit {
           let email = '';
           let nombre = '';
           let apellido = '';
-          medico.forEach((element: any) => {
-            email = element.email;
-            nombre = element.nombre;
-            apellido = element.apellido;
-          });
+          if (medico.exists()) {
+            email = medico.data()['email'];
+            nombre = medico.data()['nombre'];
+            apellido = medico.data()['apellido'];
+          }
 
           this.pacienteS
             .ingresarTurnoPaciente(
@@ -142,9 +162,13 @@ export class PacienteTurnosComponent implements OnInit {
             .then(() => {
               Swal.fire(`Turno solicitado`, '', 'success');
               let horario = this.fechas.splice(this.fechas.indexOf(fecha), 1);
-
+              this.horarios = [];
               this.usuarioElegidoEmail = '';
-              this.especialistaS.actualizarHorario(fecha.medico, horario);
+              this.especialistaS.actualizarHorario(
+                fecha.medico,
+                horario,
+                this.arrProfesionales[0].fechas
+              );
             });
         });
       } else if (result.isDenied) {

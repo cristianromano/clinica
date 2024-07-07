@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import {
   FormArray,
   FormBuilder,
@@ -15,29 +15,56 @@ import { User } from '../../interfaces/user';
 import Swal from 'sweetalert2';
 import { EspecialistaService } from '../../../services/especialista.service';
 import { Auth } from '@angular/fire/auth';
+import { BuscarMiPefilPipe } from '../../../pipes/buscar-mi-pefil.pipe';
+
+interface Fechas {
+  fecha: string;
+}
 
 @Component({
   selector: 'app-miperfil',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, NavbarComponent, FormsModule],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    NavbarComponent,
+    FormsModule,
+    BuscarMiPefilPipe,
+  ],
   templateUrl: './miperfil.component.html',
   styleUrl: './miperfil.component.css',
 })
-export class MiperfilComponent implements OnInit {
+export class MiperfilComponent implements OnInit, OnDestroy {
   user!: any;
   id!: string;
   auth: Auth = inject(Auth);
+  perfil!: string;
+  dias: string[] = [
+    'Lunes',
+    'Martes',
+    'Miercoles',
+    'Jueves',
+    'Viernes',
+    'Sabado',
+  ];
+  arrHistorial: any = [];
+  searchAll = '';
+  arrTurnosMedico: Fechas[] = [];
   constructor(
     private route: ActivatedRoute,
     private firestoreS: FirestoreService,
     private formBuilder: FormBuilder,
     private especilistaS: EspecialistaService
   ) {}
-  fechaSeleccionada: Date | null = null;
-  options = ['08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00'];
+
+  ngOnDestroy(): void {}
+
+  tieneData: boolean = true;
+
   especialidades: string[] = [];
   formRegistro = new FormGroup({
-    horario: this.formBuilder.array([]),
+    dias: new FormControl(''),
+    horario: new FormControl(''),
     especialidades: new FormControl(''),
   });
 
@@ -47,81 +74,80 @@ export class MiperfilComponent implements OnInit {
         .obtenerFirestoreUsuario(params['usuarios'])
         .then((user) => {
           this.user = user[0];
-          console.log(this.user.especialidad);
+          this.perfil = this.user.tipo;
           this.especialidades = this.user.especialidad;
+        })
+        .then(() => {
+          if (this.user.tipo === 'profesional') {
+            this.especilistaS
+              .obtenerEspecialista(this.user.email)
+              .subscribe((data) => {
+                this.id = data[0].id;
+                this.especilistaS
+                  .obtenerHistorialClinico(data[0].id)
+                  .subscribe((historial) => {
+                    this.arrHistorial = [];
+                    historial.forEach((element: any) => {
+                      this.arrHistorial.push(element);
+                    });
+                  });
+              });
+          }
         });
     });
-
-    this.especilistaS
-      .obtenerEspecialista(this.auth.currentUser?.email!)
-      .subscribe((data) => {
-        this.id = data[0].id;
-      });
   }
 
-  get horarios(): FormArray {
-    return this.formRegistro.get('horario') as FormArray;
-  }
+  agregarFecha(): void {
+    let dia = this.formRegistro.get('dias')?.value;
+    let hora = this.formRegistro.get('horario')?.value;
+    let especialidad = this.formRegistro.get('especialidades')?.value;
 
-  minDate(): string {
-    const today = new Date();
-    return today.toISOString().split('T')[0]; // Fecha actual en formato ISO (yyyy-mm-dd)
-  }
+    let horaInt = Number(hora!.split(':')[0]);
 
-  maxDate(): string {
-    const max = new Date();
-    max.setDate(max.getDate() + 15); // Suma 15 días a la fecha actual
-    return max.toISOString().split('T')[0]; // Fecha máxima en formato ISO (yyyy-mm-dd)
-  }
+    if (hora !== undefined && hora !== null && horaInt > 8 && horaInt < 18) {
+      if (dia === 'Sabado') {
+        if (horaInt > 14) {
+          Swal.fire(
+            'Horario incorrecto',
+            'El horario debe ser entre las 8 y las 13',
+            'error'
+          );
+          return;
+        }
+      }
+      if (dia && hora && especialidad) {
+        this.firestoreS
+          .actualizarHorasEspecialista(
+            dia,
+            hora.split(':')[0],
+            hora.split(':')[1],
+            especialidad,
+            this.id
+          )
+          .then(() => {
+            Swal.fire({
+              icon: 'success',
+              title: 'Se agrego el horario mensual correctamente',
+              showConfirmButton: false,
+              timer: 1500,
+            });
+          });
 
-  obtenerFechaSeleccionada(event: Event): void {
-    const fechaInput = event.target as HTMLInputElement;
-    this.fechaSeleccionada = fechaInput.value as unknown as Date;
-  }
-
-  agregarHorario(): void {
-    if (this.fechaSeleccionada === null) {
-      Swal.fire({
-        icon: 'error',
-        title: 'Oops...',
-        text: 'Debes seleccionar una fecha',
-      });
-      return;
-    }
-    const fechaSeleccionadaDate = new Date(this.fechaSeleccionada);
-    const dia = fechaSeleccionadaDate.getDate();
-    const mes = fechaSeleccionadaDate.getMonth() + 1; // Se suma 1 porque los meses van de 0 a 11
-    const anio = fechaSeleccionadaDate.getFullYear();
-    const fechaFormateada = `${dia}/${mes}/${anio}`;
-
-    // let horarios = this.options;
-    const inputElement = document.getElementById('horario') as HTMLInputElement;
-    const inputValue = inputElement.value;
-    // this.options = horarios.filter((option) => option !== inputValue);
-    const horarioFormateado = `${fechaFormateada} ${inputValue}`;
-
-    if (inputValue) {
-      this.horarios.push(
-        new FormControl(
-          `${horarioFormateado} - ${
-            this.formRegistro.get('especialidades')?.value
-          }`
-        )
+        this.formRegistro.reset();
+      }
+    } else {
+      Swal.fire(
+        'Horario incorrecto',
+        'Fijarse los datos ingresados como el horario y el dia seleccionado',
+        'error'
       );
-      inputElement.value = '';
-      this.fechaSeleccionada = null;
+      return;
     }
   }
 
   async submitForm() {
-    // (await this.especilistaS.obtenerEspecialista(this.user.email)).subscribe(
-    //   (data) => {
-    //     id = data[0].id;
-    //   }
-    // );
-
-    this.firestoreS.actualizarHorasEspecialista(this.horarios.value, this.id);
-    this.formRegistro.reset();
-    this.horarios.clear();
+    console.log(this.arrTurnosMedico);
+    // this.firestoreS.actualizarHorasEspecialista(this.arrTurnosMedico, this.id);
+    // this.formRegistro.reset();
   }
 }
