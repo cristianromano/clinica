@@ -52,4 +52,7 @@ export class NavbarComponent implements OnInit {
     this.router.navigate(['mispacientes']);
   }
 
+  irListaUsuarios() {
+    this.router.navigate(['lista-usuarios']);
+  }
 }

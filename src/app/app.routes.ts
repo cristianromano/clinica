@@ -80,5 +80,12 @@ export const routes: Routes = [
         (m) => m.MispacientesComponent
       ),
   },
+  {
+    path: 'lista-usuarios',
+    loadComponent: () =>
+      import('./components/lista-usuarios/lista-usuarios.component').then(
+        (m) => m.ListaUsuariosComponent
+      ),
+  },
   { path: '**', redirectTo: 'notfound' },
 ];

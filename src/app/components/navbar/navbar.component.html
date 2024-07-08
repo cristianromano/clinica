@@ -54,6 +54,15 @@
             </button>
           </li>
 
+          <li *ngIf="this.userPadre.tipo === 'administrador'">
+            <button
+              class="dropdown-item desloguear"
+              type="button"
+              (click)="irListaUsuarios()"
+            >
+              Usuarios
+            </button>
+          </li>
           <li>
             <button
               class="dropdown-item desloguear"
