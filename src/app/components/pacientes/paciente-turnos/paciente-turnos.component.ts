@@ -43,6 +43,7 @@ export class PacienteTurnosComponent implements OnInit, OnDestroy {
   opciones: any = [];
   fechas: any = [];
   horarios: any = [];
+  totalHorarios: any = [];
   private subscription?: Subscription[] = [];
 
   constructor(
@@ -106,11 +107,14 @@ export class PacienteTurnosComponent implements OnInit, OnDestroy {
 
     this.fechas = [];
     this.horarios = [];
+    this.totalHorarios = [];
   }
 
   elegirMedico(medico: any) {
     this.fechas = [];
     this.horarios = [];
+    this.totalHorarios = [];
+    debugger;
     for (let index = 0; index < medico.fechas.length; index++) {
       if (medico.opcion === Object.keys(medico.fechas[index])[0]) {
         let especialidad = Object.keys(medico.fechas[index])[0];
@@ -131,6 +135,8 @@ export class PacienteTurnosComponent implements OnInit, OnDestroy {
         });
       }
     }
+
+    this.totalHorarios.push(medico.fechas);
     this.fechas = Object.keys(this.horarios).map((fecha) => ({
       fecha: fecha,
       horarios: this.horarios[fecha],
@@ -150,10 +156,10 @@ export class PacienteTurnosComponent implements OnInit, OnDestroy {
     this.horarios = [];
 
     this.horarios.push(fecha.horarios);
-    console.log(this.horarios);
   }
 
   solicitarTurno(fecha: any) {
+    console.log(this.horarios);
     Swal.fire({
       title: `¿Desea solicitar turno?`,
       showDenyButton: true,
@@ -184,15 +190,19 @@ export class PacienteTurnosComponent implements OnInit, OnDestroy {
               apellido
             )
             .then(() => {
-              Swal.fire(`Turno solicitado`, '', 'success');
               let horario = this.fechas.splice(this.fechas.indexOf(fecha), 1);
-              this.horarios = [];
               this.usuarioElegidoEmail = '';
               this.especialistaS.actualizarHorario(
                 fecha.medico,
-                horario,
-                this.arrProfesionales[0].fechas
+                fecha,
+                this.totalHorarios
               );
+            })
+            .then(() => {
+              Swal.fire(`Turno solicitado`, '', 'success');
+              this.fechas = [];
+              this.horarios = [];
+              this.totalHorarios = [];
             });
         });
       } else if (result.isDenied) {

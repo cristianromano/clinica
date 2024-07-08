@@ -12,6 +12,7 @@ import {
   addDoc,
   getDoc,
 } from '@angular/fire/firestore';
+import { timestamp } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -59,21 +60,24 @@ export class EspecialistaService {
     });
   }
 
-  actualizarHorario(id: string, horario: Array<any>, fechas: Array<any>) {
+  actualizarHorario(id: string, horario: any, fechas: any) {
     let fechaObjeto: any = [];
-    let horarioEliminar: { [key: string]: Date };
-    horarioEliminar = {
-      [horario[0].especialidad]: horario[0].timestamp,
-    };
+    let arrFechas: any = [];
 
-    fechas.forEach((fecha) => {
-      if (fecha[horario[0].especialidad] !== horario[0].timestamp) {
-        fechaObjeto.push(fecha);
+    for (let index = 0; index < fechas[0].length; index++) {
+      let timestamp = Object.values(fechas[0][index])[0];
+      debugger;
+      if (timestamp !== horario.timestamp) {
+        fechaObjeto.push({
+          [Object.keys(fechas[0][index])[0]]: Object.values(
+            fechas[0][index]
+          )[0],
+        });
       }
-    });
+    }
 
     updateDoc(doc(this.firestore, 'profesional', id), {
-      fechas: fechaObjeto,
+      fechas: [...fechaObjeto],
     });
   }
 
