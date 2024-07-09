@@ -1,8 +1,13 @@
 <div class="full-background">
   <app-navbar></app-navbar>
+  <div class="container d-flex justify-content-center align-items-center">
+    <button class="btn btn-success mt-3" (click)="descargarUsuariosExcel()">
+      Descargar Usuarios Excel
+    </button>
+  </div>
   <div
     class="d-flex flex-row flex-wrap justify-content-start align-items-start"
-    style="overflow-y: scroll; height: 800px"
+    style="overflow-y: scroll; height: 750px"
   >
     <div
       class="card p-4 shadow mt-3 me-3 justify-content-center align-items-center"
@@ -22,7 +27,12 @@
           <p class="card-title">Nombre: {{ item.nombre }}</p>
           <p class="card-title">Edad: {{ item.edad }} años</p>
           <p class="card-title">Tipo: {{ item.tipo }}</p>
-          <button class="btn btn-danger mt-3">Descargar Historial</button>
+          <button
+            class="btn btn-danger mt-3"
+            (click)="descargarUsuarioPdf(item)"
+          >
+            Descargar Historial
+          </button>
         </div>
       </div>
     </div>

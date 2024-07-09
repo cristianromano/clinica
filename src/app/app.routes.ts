@@ -30,6 +30,7 @@ export const routes: Routes = [
     path: 'home',
     loadComponent: () =>
       import('./components/home/home.component').then((m) => m.HomeComponent),
+    data: { animation: 'HomePage' },
   },
   {
     path: 'notfound',
@@ -44,6 +45,7 @@ export const routes: Routes = [
       import('./components/administracion/administracion.component').then(
         (m) => m.AdministracionComponent
       ),
+    data: { animation: 'AdminPage' },
   },
   {
     path: 'turnos/paciente',
@@ -85,6 +87,13 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./components/lista-usuarios/lista-usuarios.component').then(
         (m) => m.ListaUsuariosComponent
+      ),
+  },
+  {
+    path: 'graficos',
+    loadComponent: () =>
+      import('./components/graficos/graficos.component').then(
+        (m) => m.GraficosComponent
       ),
   },
   { path: '**', redirectTo: 'notfound' },

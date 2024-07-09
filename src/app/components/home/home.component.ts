@@ -1,11 +1,14 @@
 import { Component, Input, OnInit, inject } from '@angular/core';
 import { NavbarComponent } from '../navbar/navbar.component';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterOutlet } from '@angular/router';
 import { AuthService } from '../../../services/auth.service';
 import { FirestoreService } from '../../../services/firestore.service';
 import { Auth, user } from '@angular/fire/auth';
 import { CommonModule } from '@angular/common';
 import { Observable } from 'rxjs';
+
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { routeTransition } from '../../animations/route-transition';
 
 @Component({
   selector: 'app-home',
@@ -19,6 +22,7 @@ export class HomeComponent implements OnInit {
   user: any = {};
 
   constructor(
+    public outlet: RouterOutlet,
     private router: Router,
     public authS: AuthService,
     private firestoreS: FirestoreService

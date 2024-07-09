@@ -15,13 +15,16 @@ import {
   RecaptchaV3Module,
   RECAPTCHA_V3_SITE_KEY,
 } from 'ng-recaptcha';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 bootstrapApplication(AppComponent, {
   providers: [
     provideHttpClient(),
+
     appConfig.providers,
     importProvidersFrom(
       RecaptchaV3Module,
+      BrowserAnimationsModule,
       BlockUIModule.forRoot(),
       provideFirebaseApp(() => initializeApp(environment.firebaseConfig)),
       provideAuth(() => getAuth()),

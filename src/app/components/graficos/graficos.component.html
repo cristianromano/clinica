@@ -1,0 +1,39 @@
+<div class="full-background">
+  <app-navbar></app-navbar>
+  <div class="d-flex flex-row justify-content-start align-items-start ms-3" style="overflow-y: auto;">
+    <div class="mt-3" style="background-color: bisque;height: 460px;" >
+      <ngx-charts-pie-chart
+        [legendTitle]="'Cantidad de turnos por especialidad'"
+        [view]="view"
+        [scheme]="colorScheme"
+        [results]="arrTurnosEspecialidad"
+        [gradient]="gradient"
+        [legend]="showLegend"
+        [legendPosition]="legendPosition"
+        [labels]="showLabels"
+        [doughnut]="isDoughnut"
+        (select)="onSelect($event)"
+        (activate)="onActivate($event)"
+        (deactivate)="onDeactivate($event)"
+      >
+      </ngx-charts-pie-chart>
+    </div>
+    <div class="mt-3 ms-5" style="background-color: bisque;height: 460px;">
+      <ngx-charts-pie-chart
+      [legendTitle]="'Cantidad de turnos por día'"
+        [view]="view"
+        [scheme]="colorScheme"
+        [results]="arrTurnosDia"
+        [gradient]="gradient"
+        [legend]="showLegend"
+        [legendPosition]="legendPosition"
+        [labels]="showLabels"
+        [doughnut]="isDoughnut"
+        (select)="onSelect($event)"
+        (activate)="onActivate($event)"
+        (deactivate)="onDeactivate($event)"
+      >
+      </ngx-charts-pie-chart>
+    </div>
+  </div>
+</div>

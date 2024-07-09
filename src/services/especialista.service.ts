@@ -11,6 +11,7 @@ import {
   deleteDoc,
   addDoc,
   getDoc,
+  and,
 } from '@angular/fire/firestore';
 import { timestamp } from 'rxjs';
 
@@ -113,6 +114,14 @@ export class EspecialistaService {
     });
   }
 
+  obtenerTurnosTotal() {
+    let q = query(collection(this.firestore, 'turnos'));
+
+    return collectionData(q, {
+      idField: 'id',
+    });
+  }
+
   ingresarHistoralClinico(
     id: string,
     idMedico: string,
@@ -153,6 +162,40 @@ export class EspecialistaService {
     let q = query(
       collection(this.firestore, 'usuarios'),
       where('email', '==', email)
+    );
+
+    return collectionData(q, {
+      idField: 'id',
+    });
+  }
+
+  convertDateToTimestamp(date: any) {
+    if (!(date instanceof Date)) {
+      throw new Error('Invalid Date object');
+    }
+
+    const seconds = Math.floor(date.getTime() / 1000);
+    const nanoseconds = (date.getTime() % 1000) * 1e6;
+
+    return {
+      seconds: seconds,
+      nanoseconds: nanoseconds,
+    };
+  }
+
+  obtenerTurnosMedicoMes() {
+    let mes = new Date().getMonth();
+    let newdDate = new Date(new Date().getFullYear(), mes, 1);
+    let timestampPrimerDiaMes = this.convertDateToTimestamp(newdDate);
+    let timestampUltimoDiaMes = this.convertDateToTimestamp(
+      new Date(new Date().getFullYear(), mes + 1, 0)
+    );
+    let q = query(
+      collection(this.firestore, 'turnos'),
+      and(
+        where('fechaPedido', '>', timestampPrimerDiaMes),
+        where('fechaPedido', '<', timestampUltimoDiaMes)
+      )
     );
 
     return collectionData(q, {

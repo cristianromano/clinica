@@ -108,4 +108,15 @@ export class PacienteService {
       idField: 'id',
     });
   }
+
+  obtenerTurnosPaciente(email: string) {
+    let q = query(
+      collection(this.firestore, 'turnos'),
+      where('paciente', '==', email)
+    );
+
+    return collectionData(q, {
+      idField: 'id',
+    });
+  }
 }

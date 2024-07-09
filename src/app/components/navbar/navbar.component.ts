@@ -55,4 +55,8 @@ export class NavbarComponent implements OnInit {
   irListaUsuarios() {
     this.router.navigate(['lista-usuarios']);
   }
+
+  irGraficos() {
+    this.router.navigate(['graficos']);
+  }
 }
