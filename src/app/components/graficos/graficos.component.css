@@ -1,6 +1,6 @@
 .full-background {
-  width: 100vw;
-  height: 100vh;
+  width: 99.1vw;
+  height: 240vh;
 }
 
 :host {
@@ -22,3 +22,5 @@
   background-color: antiquewhite;
   width: 300px;
 }
+
+

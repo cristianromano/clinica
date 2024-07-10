@@ -11,6 +11,7 @@ export const routes: Routes = [
       import('./components/login/login.component').then(
         (m) => m.LoginComponent
       ),
+    data: { animation: 'routeTransitionLogin' },
   },
   {
     path: 'elegirusuario',
@@ -45,7 +46,7 @@ export const routes: Routes = [
       import('./components/administracion/administracion.component').then(
         (m) => m.AdministracionComponent
       ),
-    data: { animation: 'AdminPage' },
+    data: { animation: 'routeTransition' },
   },
   {
     path: 'turnos/paciente',

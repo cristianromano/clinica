@@ -119,4 +119,15 @@ export class PacienteService {
       idField: 'id',
     });
   }
+
+  obtenerPacientePorEmail(email: string) {
+    let q = query(
+      collection(this.firestore, 'pacientes'),
+      where('email', '==', email)
+    );
+
+    return collectionData(q, {
+      idField: 'id',
+    });
+  }
 }

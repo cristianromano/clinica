@@ -268,4 +268,23 @@ export class FirestoreService {
       idField: 'id',
     });
   }
+
+  logDeUsuario(email: string, id: string) {
+    let log = {
+      fecha: new Date().toLocaleString(),
+      email: email,
+    };
+    return addDoc(collection(this.firestore, `log`), log);
+  }
+
+  obtenerAdminPorEmail(email: string) {
+    let q = query(
+      collection(this.firestore, 'administradores'),
+      where('email', '==', email)
+    );
+
+    return collectionData(q, {
+      idField: 'id',
+    });
+  }
 }

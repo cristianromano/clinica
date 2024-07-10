@@ -1,4 +1,5 @@
 import { Injectable, inject } from '@angular/core';
+import { DeferBlockBehavior } from '@angular/core/testing';
 import {
   Firestore,
   collection,
@@ -186,17 +187,40 @@ export class EspecialistaService {
   obtenerTurnosMedicoMes() {
     let mes = new Date().getMonth();
     let newdDate = new Date(new Date().getFullYear(), mes, 1);
-    let timestampPrimerDiaMes = this.convertDateToTimestamp(newdDate);
-    let timestampUltimoDiaMes = this.convertDateToTimestamp(
-      new Date(new Date().getFullYear(), mes + 1, 0)
-    );
+    let dosSemanasDelMes = new Date(new Date().getFullYear(), mes, 15);
     let q = query(
       collection(this.firestore, 'turnos'),
       and(
-        where('fechaPedido', '>', timestampPrimerDiaMes),
-        where('fechaPedido', '<', timestampUltimoDiaMes)
+        where('fechaPedido', '>', newdDate),
+        where('fechaPedido', '<', dosSemanasDelMes)
       )
     );
+
+    return collectionData(q, {
+      idField: 'id',
+    });
+  }
+
+  obtenerTurnosMedicoDosSemanasFinalizados() {
+    let mes = new Date().getMonth();
+    let newdDate = new Date(new Date().getFullYear(), mes, 1);
+    let dosSemanasDelMes = new Date(new Date().getFullYear(), mes, 15);
+    let q = query(
+      collection(this.firestore, 'turnos'),
+      and(
+        where('fechaPedido', '>', newdDate),
+        where('fechaPedido', '<', dosSemanasDelMes),
+        where('estado', '==', 'realizado')
+      )
+    );
+
+    return collectionData(q, {
+      idField: 'id',
+    });
+  }
+
+  obtenerLogUsuarios(){
+    let q = query(collection(this.firestore, 'log'));
 
     return collectionData(q, {
       idField: 'id',

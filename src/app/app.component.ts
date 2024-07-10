@@ -1,6 +1,9 @@
 import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { routeTransition } from './animations/route-transition';
+import {
+  routeTransition,
+  routeTransitionLogin,
+} from './animations/route-transition';
 
 @Component({
   selector: 'app-root',
@@ -8,16 +11,17 @@ import { routeTransition } from './animations/route-transition';
   imports: [RouterOutlet],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css',
-  animations: [routeTransition],
+  animations: [routeTransition, routeTransitionLogin],
 })
 export class AppComponent {
   title = 'clinica';
 
   prepareRoute(outlet: RouterOutlet) {
-    return (
+    const animation =
       outlet &&
       outlet.activatedRouteData &&
-      outlet.activatedRouteData['animation']
-    );
+      outlet.activatedRouteData['animation'];
+
+    return animation || 'routeTransitionLogin';
   }
 }
