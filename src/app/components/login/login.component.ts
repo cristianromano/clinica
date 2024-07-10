@@ -13,10 +13,14 @@ import Swal from 'sweetalert2';
 import { AuthService } from '../../../services/auth.service';
 import { FirestoreService } from '../../../services/firestore.service';
 import { BlockUI, BlockUIModule, NgBlockUI } from 'ng-block-ui';
+import { TextoDecoradoDirective } from '../../../directives/texto-decorado.directive';
+import { ColorDirective } from '../../../directives/color.directive';
+import { OrdenamientoDirective } from '../../../directives/ordenamiento.directive';
+
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, BlockUIModule],
+  imports: [CommonModule, ReactiveFormsModule, BlockUIModule,TextoDecoradoDirective,ColorDirective,OrdenamientoDirective],
   templateUrl: './login.component.html',
   styleUrl: './login.component.css',
 })

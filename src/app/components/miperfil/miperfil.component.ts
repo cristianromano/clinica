@@ -56,6 +56,7 @@ export class MiperfilComponent implements OnInit, OnDestroy {
   tipo = '';
   email = '';
   nombre = '';
+  imagen = '';
   constructor(
     private route: ActivatedRoute,
     private firestoreS: FirestoreService,
@@ -81,6 +82,7 @@ export class MiperfilComponent implements OnInit, OnDestroy {
       this.tipo = user.tipo;
       this.email = user.email;
       this.nombre = user.nombre;
+      this.imagen = user.imagenes;
     });
     this.route.params.subscribe((params) => {
       console.log(params['usuarios']);
@@ -116,10 +118,12 @@ export class MiperfilComponent implements OnInit, OnDestroy {
             this.especilistaS
               .obtenerTurnoPorId(element.idTurno)
               .then((data) => {
+                debugger;
                 this.arrHistorial.push({
                   ...element,
                   especialidad: data.data()?.['especialidad'],
                   medico: data.data()?.['medico'],
+                  medicoId: data.data()?.['medicoid'],
                 });
               });
           });
@@ -180,7 +184,8 @@ export class MiperfilComponent implements OnInit, OnDestroy {
     let medico = '';
     let medicoemail = '';
     let especialidad = '';
-    this.especilistaS.obtenerMedicoPorId(item.medico).then((data) => {
+
+    this.especilistaS.obtenerMedicoPorId(item.medicoId).then((data) => {
       medico = data.data()?.['nombre'] + ' ' + data.data()?.['apellido'];
       medicoemail = data.data()?.['email'];
       especialidad = data.data()?.['especialidad'];

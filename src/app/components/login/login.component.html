@@ -2,15 +2,7 @@
   <div
     class="full-background d-flex flex-column justify-content-center align-items-center"
   >
-    <div
-      class="d-flex justify-content-evenly align-items-center"
-      style="
-        border: 1px solid black;
-        border-radius: 5px;
-        padding: 10px;
-        background-color: #f8d7da;
-      "
-    >
+    <div appOrdenamiento>
       <button
         type="button"
         class="btn btn-danger"
@@ -119,7 +111,14 @@
         />
         <form [formGroup]="formLogin" (ngSubmit)="submitForm()">
           <div class="mb-3">
-            <label for="email" class="form-label">Email</label>
+            <label
+              for="email"
+              appTextoDecorado
+              [fontSize]="'20px'"
+              [isBold]="true"
+              class="form-label"
+              >Email</label
+            >
             <input
               type="email"
               class="form-control"
@@ -128,16 +127,19 @@
             />
           </div>
 
-          <div
-            *ngIf="formLogin?.get('email')?.errors?.['pattern']"
-            class="text-danger"
-            style="padding: 10px; border-radius: 5px; background-color: #f8d7da"
-          >
+          <div *ngIf="formLogin?.get('email')?.errors?.['pattern']" appColor>
             ingrese un email valido.
           </div>
 
           <div class="mb-3">
-            <label for="password" class="form-label">Contraseña</label>
+            <label
+              for="password"
+              appTextoDecorado
+              [fontSize]="'20px'"
+              [isBold]="true"
+              class="form-label"
+              >Contraseña</label
+            >
             <input
               type="password"
               class="form-control"

@@ -237,25 +237,14 @@ export class GraficosComponent implements OnInit {
         }
       });
 
-      // Ordena las series por fecha
       single.forEach((user) => {
-        let sortedA;
-        let sortedB;
-        user.series.sort((a, b) => {
-          sortedA = a.name.split('/');
-          sortedB = b.name.split('/');
-          if (Number(sortedA) > Number(sortedB)) {
-            return 1;
-          } else {
-            return -1;
-          }
-        });
+        user.series.sort((a, b) => this.compareDates(a.name, b.name));
       });
 
       // Ordena el array principal por la fecha mínima de cada serie
       single.sort((a, b) => {
-        const minDateA = new Date(a.series[0].name).getTime();
-        const minDateB = new Date(b.series[0].name).getTime();
+        const minDateA = new Date(this.parseDate(a.series[0].name)).getTime();
+        const minDateB = new Date(this.parseDate(b.series[0].name)).getTime();
         return minDateA - minDateB;
       });
 
@@ -266,7 +255,18 @@ export class GraficosComponent implements OnInit {
 
   formatDate(date: string): string {
     const [day, month, year] = date.split('/');
+    return `${day.padStart(2, '0')}/${month.padStart(2, '0')}/${year}`;
+  }
+
+  parseDate(date: string): string {
+    const [day, month, year] = date.split('/');
     return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+  }
+
+  compareDates(date1: string, date2: string): number {
+    const d1 = new Date(this.parseDate(date1)).getTime();
+    const d2 = new Date(this.parseDate(date2)).getTime();
+    return d1 - d2;
   }
 
   descargarGrafico() {

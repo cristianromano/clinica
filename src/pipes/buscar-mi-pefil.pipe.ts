@@ -36,7 +36,14 @@ export class BuscarMiPefilPipe implements PipeTransform {
       ) {
         filteredItems.push(elemento);
       } else if (
+        elemento.especialidad !== undefined &&
         elemento.especialidad.toString().toLowerCase().includes(searchLower)
+      ) {
+        filteredItems.push(elemento);
+      }
+      else if (
+        elemento.paciente !== undefined &&
+        elemento.paciente.toString().toLowerCase().includes(searchLower)
       ) {
         filteredItems.push(elemento);
       }

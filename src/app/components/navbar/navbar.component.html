@@ -35,7 +35,7 @@
           {{ nombre }}
         </button>
         <ul class="dropdown-menu">
-          <li>
+          <li *ngIf="this.userPadre.tipo !== 'administrador'">
             <button
               class="dropdown-item desloguear"
               type="button"
