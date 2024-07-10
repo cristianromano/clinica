@@ -5,6 +5,7 @@ import {
   collection,
   collectionData,
   doc,
+  docData,
   getDoc,
   getDocs,
   query,
@@ -108,6 +109,7 @@ export class PacienteService {
       idField: 'id',
     });
   }
+
 
   obtenerTurnosPaciente(email: string) {
     let q = query(

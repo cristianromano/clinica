@@ -97,5 +97,12 @@ export const routes: Routes = [
         (m) => m.GraficosComponent
       ),
   },
+  {
+    path: 'mihistorial/:id',
+    loadComponent: () =>
+      import('./components/mihistorial/mihistorial.component').then(
+        (m) => m.MihistorialComponent
+      ),
+  },
   { path: '**', redirectTo: 'notfound' },
 ];

@@ -1,0 +1,27 @@
+<div class="full-background">
+  <app-navbar></app-navbar>
+  <div class="d-flex flex-wrap justify-content-start align-items-start mt-3">
+    <div
+      class="d-flex flex-row justify-content-center align-items-center ms-3"
+      *ngFor="let item of arrHistoriales"
+    >
+      <div class="card-body d-flex flex-column align-items-center" style="height: 250px;">
+        <h5 class="card-title">Historial Clinico</h5>
+        <h6 class="card-subtitle mb-2 text-body-secondary">
+          {{ item.fecha.toDate() | date : "medium" }}
+        </h6>
+        <p class="card-text"></p>
+        <h5>Analisis</h5>
+        <ul>
+          <li>Altura:{{ item.historial.altura }} cms</li>
+          <li>Peso:{{ item.historial.peso }} kgs</li>
+          <li>Presion:{{ item.historial.presion }}mmHg</li>
+          <li>Temperatura:{{ item.historial.temperatura }}°C</li>
+          <li *ngIf="item.historial.caries.caries !== ''">
+            Caries:{{ item.historial.caries.caries }}
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>

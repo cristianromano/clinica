@@ -1,12 +1,12 @@
 <div class="full-background">
   <app-navbar></app-navbar>
   <div
-    class="d-flex flex-row justify-content-center align-items-center"
+    class="d-flex flex-wrap justify-content-center align-items-center"
     *ngIf="perfil === 'profesional'"
   >
     <div
       class="card p-4 shadow mt-3 me-3 justify-content-center align-items-center"
-      *ngFor="let item of arrPaciente"
+      *ngFor="let item of arrPaciente; index as i"
     >
       <img
         [src]="item.imagenes"
@@ -18,9 +18,9 @@
         <div
           class="d-flex flex-column justify-content-center align-items-center"
         >
-          <h5 class="card-title">Descargar Historial de {{ item.email }}</h5>
-          <nav></nav>
-          <button class="btn btn-danger mt-3">Ingresar</button>
+          <h5>{{i <= 2? 'Ver historial de ' + item.nombre : "Atendiste a " + item.nombre}}</h5>
+
+          <button *ngIf="i <= 2" class="btn btn-danger mt-3" (click)="irHistorial(item)">Ingresar</button>
         </div>
       </div>
     </div>

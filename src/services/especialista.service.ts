@@ -141,6 +141,7 @@ export class EspecialistaService {
         temperatura: historial[3],
         caries: { ['caries']: historial[4] },
       },
+      fecha: new Date(),
     });
   }
 
@@ -219,7 +220,7 @@ export class EspecialistaService {
     });
   }
 
-  obtenerLogUsuarios(){
+  obtenerLogUsuarios() {
     let q = query(collection(this.firestore, 'log'));
 
     return collectionData(q, {

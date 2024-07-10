@@ -1,0 +1,1 @@
+import{ga as i}from"./chunk-LTJRTMYM.js";var o=(()=>{let t=class t{transform(e){return e?e.toDate():null}};t.\u0275fac=function(n){return new(n||t)},t.\u0275pipe=i({name:"convertirfecha",type:t,pure:!0,standalone:!0});let r=t;return r})();export{o as a};
