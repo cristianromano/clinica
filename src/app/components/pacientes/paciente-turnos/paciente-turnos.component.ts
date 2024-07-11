@@ -114,7 +114,9 @@ export class PacienteTurnosComponent implements OnInit, OnDestroy {
     this.fechas = [];
     this.horarios = [];
     this.totalHorarios = [];
-    debugger;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
     for (let index = 0; index < medico.fechas.length; index++) {
       if (medico.opcion === Object.keys(medico.fechas[index])[0]) {
         let especialidad = Object.keys(medico.fechas[index])[0];
@@ -122,17 +124,25 @@ export class PacienteTurnosComponent implements OnInit, OnDestroy {
         let medicoId = medico.id;
         let fecha = new Date(
           (timestamp as any).seconds * 1000
-        ).toLocaleDateString();
+        )
 
-        if (!this.horarios[fecha]) {
-          this.horarios[fecha] = [];
+        let dia = today.getDate().toString()
+        let mes = (today.getMonth() + 1).toString()
+        let anio = today.getFullYear().toString()
+        debugger;
+        if (fecha >= today) {
+          let fechaString = fecha.toLocaleDateString();;
+
+          if (!this.horarios[fechaString]) {
+            this.horarios[fechaString] = [];
+          }
+
+          this.horarios[fechaString].push({
+            especialidad: especialidad,
+            timestamp: timestamp,
+            medico: medico.id,
+          });
         }
-
-        this.horarios[fecha].push({
-          especialidad: especialidad,
-          timestamp: timestamp,
-          medico: medico.id,
-        });
       }
     }
 
